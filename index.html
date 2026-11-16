@@ -467,6 +467,66 @@
   .cat-head .t{ font-size:12.5px; font-weight:700; color:var(--ink-soft); }
   .cat-head .n{ font-size:11.5px; font-weight:700; color:var(--muted); }
 
+  /* ---------- GitHub 비밀 창고 동기화 ---------- */
+  #btnSync{ position:relative; }
+  .sync-dot{
+    position:absolute; top:7px; right:8px; width:8px; height:8px; border-radius:50%;
+    background:#CFC1B4; box-shadow:0 0 0 2px rgba(255,255,255,.92);
+    transition:background .18s ease;
+  }
+  .sync-dot[data-state="synced"]{ background:var(--green); }
+  .sync-dot[data-state="syncing"]{ background:#E0892F; }
+  .sync-dot[data-state="error"]{ background:#C0453C; }
+
+  #syncLayer{ z-index:66; }
+  .sync-lead{ margin:0 0 18px; font-size:13px; line-height:1.68; color:var(--ink-soft); letter-spacing:-.01em; }
+  .sync-lead b{ font-weight:700; color:var(--ink); }
+  .sync-steps{ display:flex; flex-direction:column; gap:16px; }
+  .sync-step{ display:flex; gap:11px; align-items:flex-start; }
+  .sync-step > .n{
+    flex:none; display:grid; place-items:center; width:24px; height:24px; margin-top:1px;
+    border-radius:50%; background:var(--accent-soft); color:var(--accent-deep);
+    font-size:12px; font-weight:800;
+  }
+  .sync-step > .b{ flex:1; min-width:0; }
+  .sync-step h3{ margin:0 0 5px; font-size:14px; font-weight:800; letter-spacing:-.03em; }
+  .sync-step p{ margin:0; font-size:12.5px; line-height:1.65; color:var(--ink-soft); letter-spacing:-.01em; }
+  .sync-step p b{ font-weight:700; color:var(--ink); }
+  .sync-tip{ margin:8px 0 0; font-size:11.5px; line-height:1.6; color:#AC9B8B; letter-spacing:-.01em; }
+  .sync-btn-row{ display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+  .sync-btn-row .btn{ flex:1; min-width:150px; height:46px; font-size:14px; }
+  .sync-link{
+    display:flex; align-items:center; justify-content:center; width:100%;
+    height:48px; padding:0 16px; border-radius:14px;
+    border:1px solid var(--line-strong); background:#fff; color:var(--ink);
+    font-family:inherit; font-size:13.5px; font-weight:700; letter-spacing:-.02em;
+    text-decoration:none;
+  }
+  .sync-link:active{ background:#FBF6F0; }
+  .sync-conn{
+    display:flex; flex-direction:column; gap:1px; overflow:hidden;
+    border:1px solid var(--line); border-radius:14px; background:#FBF7F2;
+  }
+  .sync-conn-row{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding:12px 14px; background:#fff;
+  }
+  .sync-conn-k{ flex:none; font-size:12px; font-weight:700; color:var(--muted); letter-spacing:-.01em; }
+  .sync-conn-v{
+    min-width:0; font-size:12.5px; font-weight:700; color:var(--ink); letter-spacing:-.01em;
+    text-align:right; text-decoration:none; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  a.sync-conn-v{ color:var(--accent-deep); text-decoration:underline; text-underline-offset:3px; }
+  .sync-status{
+    margin:12px 0 0; padding:11px 13px; border-radius:12px;
+    background:var(--green-soft); color:#2F6449;
+    font-size:12px; font-weight:600; line-height:1.55; letter-spacing:-.01em;
+    word-break:break-word;
+  }
+  .sync-status.is-error{ background:#FCEFED; color:#A6423A; }
+  .sync-status[hidden]{ display:none; }
+  #syncOn .sheet-actions{ margin-top:14px; }
+
   @media (min-width:640px){
     .list{ grid-template-columns:1fr 1fr; }
     .layer{ align-items:center; padding:24px; }
@@ -501,6 +561,11 @@
         <button type="button" class="tool" id="btnImport" aria-label="백업한 JSON 파일 불러오기">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V5"/><path d="M8 8.5l4-4 4 4"/><path d="M5 19h14"/></svg>
           <span>복원</span>
+        </button>
+        <button type="button" class="tool" id="btnSync" aria-label="동기화 설정 열기" title="GitHub 비밀 창고에 동기화">
+          <span class="sync-dot" id="syncDot" data-state="idle" aria-hidden="true"></span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11.5a8 8 0 0 0-13.7-5.1L4 8.6"/><path d="M4 4.5v4.1h4.1"/><path d="M4 12.5a8 8 0 0 0 13.7 5.1L20 15.4"/><path d="M20 19.5v-4.1h-4.1"/></svg>
+          <span>동기화</span>
         </button>
         <input type="file" id="importInput" accept="application/json,.json" hidden>
       </div>
@@ -713,6 +778,79 @@
   </div>
 </div>
 
+<!-- 동기화 시트 -->
+<div class="layer" id="syncLayer" aria-hidden="true">
+  <div class="sheet" id="syncSheet" role="dialog" aria-modal="true" aria-labelledby="syncTitle">
+    <div class="handle" aria-hidden="true"></div>
+    <div class="sheet-head">
+      <h2 id="syncTitle">비밀 창고 동기화</h2>
+      <button type="button" class="icon-btn" id="syncClose" aria-label="닫기">✕</button>
+    </div>
+    <p class="sync-lead">GitHub의 <b>비밀 창고(Secret Gist)</b>에 내 목록을 숨겨서 보관해요. 한 번 연결해 두면 상품을 담거나 지울 때마다 저절로 저장되고, 다른 기기에서도 그대로 이어서 쓸 수 있어요.</p>
+
+    <div id="syncOff">
+      <div class="sync-steps">
+        <div class="sync-step">
+          <span class="n" aria-hidden="true">1</span>
+          <div class="b">
+            <h3>내 비밀 창고 열쇠 만들기</h3>
+            <p>아래 버튼을 누르면 GitHub의 열쇠 만들기 페이지가 열려요. <b>gist</b> 하나만 체크된 채로 열리니, 그대로 페이지 맨 아래 <b>Generate token</b>만 누르면 돼요.</p>
+            <div class="sync-btn-row">
+              <a class="sync-link" id="syncTokenLink" href="https://github.com/settings/tokens/new?scopes=gist&amp;description=Wishlist+Sync" target="_blank" rel="noopener noreferrer">GitHub에서 열쇠 만들기 ↗</a>
+            </div>
+            <p class="sync-tip">GitHub에 로그인되어 있어야 해요. 만든 열쇠는 그 화면에서 한 번만 보여주니 복사해 두세요.</p>
+          </div>
+        </div>
+        <div class="sync-step">
+          <span class="n" aria-hidden="true">2</span>
+          <div class="b">
+            <h3>열쇠 붙여넣기</h3>
+            <p>복사한 열쇠를 아래에 붙여넣고 <b>연결 및 동기화</b>를 눌러 주세요.</p>
+            <div class="field" style="margin:10px 0 0">
+              <input id="syncToken" class="input" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="ghp_… 또는 github_pat_…" aria-label="GitHub 개인 액세스 토큰(열쇠)">
+            </div>
+            <div class="sync-btn-row">
+              <button type="button" class="btn primary" id="btnSyncConnect">연결 및 동기화</button>
+            </div>
+            <p class="sync-tip">열쇠는 이 브라우저의 <b>이 기기</b>에만 저장되고, GitHub 말고 다른 곳으로는 보내지 않아요. 목록은 남에게 보이지 않는 비밀 창고에 들어가요.</p>
+          </div>
+        </div>
+        <div class="sync-step">
+          <span class="n" aria-hidden="true">3</span>
+          <div class="b">
+            <h3>다른 기기에서도 열쇠 하나로</h3>
+            <p>새 기기에서도 같은 열쇠를 붙여넣으면 내 비밀 창고를 <b>자동으로 찾아</b> 그대로 이어서 써요. 창고 주소를 따로 적어 둘 필요가 없어요.</p>
+          </div>
+        </div>
+      </div>
+      <p class="sync-status is-error" id="syncOffStatus" role="alert" hidden></p>
+    </div>
+
+    <div id="syncOn" hidden>
+      <div class="sync-conn">
+        <div class="sync-conn-row">
+          <span class="sync-conn-k">GitHub 계정</span>
+          <span class="sync-conn-v" id="syncLogin">—</span>
+        </div>
+        <div class="sync-conn-row">
+          <span class="sync-conn-k">마지막 동기화</span>
+          <span class="sync-conn-v" id="syncLast">아직 없음</span>
+        </div>
+        <div class="sync-conn-row">
+          <span class="sync-conn-k">비밀 창고</span>
+          <a class="sync-conn-v" id="syncGistLink" href="https://gist.github.com/" target="_blank" rel="noopener noreferrer">비밀 창고 열기 ↗</a>
+        </div>
+      </div>
+      <p class="sync-status" id="syncStatus" role="status" aria-live="polite" hidden></p>
+      <div class="sheet-actions">
+        <button type="button" class="btn primary" id="btnSyncNow">지금 동기화</button>
+        <button type="button" class="btn soft" id="btnSyncOff">연결 끊기</button>
+      </div>
+      <p class="sync-tip">연결을 끊어도 이 기기에 담아둔 목록은 그대로 남고, 비밀 창고에 보관된 내용도 지워지지 않아요.</p>
+    </div>
+  </div>
+</div>
+
 <!-- 확인 대화상자 -->
 <div class="layer confirm" id="confirmLayer" aria-hidden="true">
   <div class="dialog" role="alertdialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmMessage">
@@ -783,6 +921,21 @@
     btnExport: $('#btnExport'),
     btnImport: $('#btnImport'),
     importInput: $('#importInput'),
+    btnSync: $('#btnSync'),
+    syncDot: $('#syncDot'),
+    syncLayer: $('#syncLayer'),
+    syncClose: $('#syncClose'),
+    syncOff: $('#syncOff'),
+    syncOn: $('#syncOn'),
+    syncOffStatus: $('#syncOffStatus'),
+    syncToken: $('#syncToken'),
+    btnSyncConnect: $('#btnSyncConnect'),
+    syncLogin: $('#syncLogin'),
+    syncLast: $('#syncLast'),
+    syncGistLink: $('#syncGistLink'),
+    syncStatus: $('#syncStatus'),
+    btnSyncNow: $('#btnSyncNow'),
+    btnSyncOff: $('#btnSyncOff'),
     catLayer: $('#catLayer'),
     catList: $('#catList'),
     catCount: $('#catCount'),
@@ -799,6 +952,8 @@
 
   var items = [];
   var categories = [];
+  var tombstones = {};      /* 지운 상품: id → 지운 시각(ms) */
+  var catTombstones = {};   /* 지운 분류: id → 지운 시각(ms) */
   var view = { q: '', filter: 'all', cat: 'all', sort: 'newest' };
   var editingId = null;
   var draftImage = '';
@@ -883,7 +1038,11 @@
     if (!raw || typeof raw !== 'object') return null;
     var name = str(raw.name).replace(/\s+/g, ' ').slice(0, 16);
     if (!name) return null;
-    return { id: str(raw.id) || uid(), name: name };
+    return {
+      id: str(raw.id) || uid(),
+      name: name,
+      updatedAt: Number(raw.updatedAt) || 0
+    };
   }
   function cleanCategories(list) {
     var seen = {}, out = [];
@@ -951,6 +1110,8 @@
 
     var arr = Array.isArray(data) ? data : (data && Array.isArray(data.items) ? data.items : []);
     var cats = (data && !Array.isArray(data) && Array.isArray(data.categories)) ? data.categories : null;
+    tombstones = cleanTombs(data && !Array.isArray(data) ? data.deletedIds : null);
+    catTombstones = cleanTombs(data && !Array.isArray(data) ? data.deletedCatIds : null);
     /* 저장된 분류 목록이 있으면 빈 목록도 그대로 존중하고, 없을 때만 기본 분류를 만든다 */
     categories = cats ? cleanCategories(cats) : defaultCategories();
 
@@ -973,7 +1134,9 @@
       version: 3,
       savedAt: new Date().toISOString(),
       categories: categories,
-      items: items
+      items: items,
+      deletedIds: tombstones,
+      deletedCatIds: catTombstones
     };
     try {
       localStorage.setItem(STORE_KEY, JSON.stringify(payload));
@@ -1133,9 +1296,14 @@
     renderCategoryChips();
 
     var bytes = storageBytes();
-    els.usage.innerHTML = '이 기기 브라우저에만 저장돼요 · <b>' + total + '개</b>' +
+    els.usage.innerHTML = (sync.token
+      ? '이 기기 브라우저에 저장되고 <b>비밀 창고</b>에도 함께 보관돼요'
+      : '이 기기 브라우저에만 저장돼요') +
+      ' · <b>' + total + '개</b>' +
       (bytes ? ' · 약 ' + prettySize(bytes) : '') +
-      '<br>폰을 바꾸실 땐 위의 <b>백업</b>으로 파일을 만들어 두세요.';
+      '<br>' + (sync.token
+        ? '폰을 바꾸셔도 같은 열쇠로 목록을 그대로 이어서 쓸 수 있어요.'
+        : '폰을 바꾸실 땐 위의 <b>백업</b>으로 파일을 만들어 두세요.');
   }
 
   /* ---------------- toast ---------------- */
@@ -1256,11 +1424,13 @@
       return;
     }
     c.name = name;
+    c.updatedAt = Date.now();
     if (!persist()) return;
     render();
     renderCatList();
     fillCategorySelect();
     toast('분류 이름을 바꿨어요');
+    scheduleSync();
   }
 
   function addCategory(rawName) {
@@ -1278,13 +1448,14 @@
       toast('분류는 ' + MAX_CATS + '개까지 만들 수 있어요', 'error');
       return false;
     }
-    categories.push({ id: uid(), name: name });
+    categories.push({ id: uid(), name: name, updatedAt: Date.now() });
     if (!persist()) { categories.pop(); return false; }
     els.newCatName.value = '';
     render();
     renderCatList();
     fillCategorySelect();
     toast('‘' + name + '’ 분류를 만들었어요');
+    scheduleSync();
     return true;
   }
 
@@ -1305,9 +1476,10 @@
     if (!ok) return;
     var prevItems = items.slice();
     var prevCats = categories.slice();
+    catTombstones[id] = Date.now();
     categories = categories.filter(function (x) { return x.id !== id; });
     items = items.map(function (it) {
-      return it.categoryId === id ? Object.assign({}, it, { categoryId: '' }) : it;
+      return it.categoryId === id ? Object.assign({}, it, { categoryId: '', updatedAt: Date.now() }) : it;
     });
     if (view.cat === id) view.cat = 'all';
     if (!persist()) { items = prevItems; categories = prevCats; return; }
@@ -1315,6 +1487,7 @@
     renderCatList();
     fillCategorySelect();
     toast(n ? '분류를 지우고 상품 ' + n + '개를 미지정으로 옮겼어요' : '분류를 지웠어요');
+    scheduleSync();
   }
 
   /* ---------------- sheet ---------------- */
@@ -1430,6 +1603,7 @@
     render();
     if (navigator.vibrate) { try { navigator.vibrate(8); } catch (e) {} }
     toast(it.done ? '구매 완료로 표시했어요' : '살 것 목록으로 되돌렸어요');
+    scheduleSync();
   }
 
   /* ---------------- import / export ---------------- */
@@ -1487,6 +1661,8 @@
 
     if (choice === 'replace') {
       var nextCats = inCats ? inCats.slice() : categories.slice();
+      /* 지금 목록을 백업본으로 갈아끼우므로, 빠지는 상품은 지운 것으로 표시해 둔다(다음 동기화에서 되살아나지 않게) */
+      items.forEach(function (it) { tombstones[it.id] = Date.now(); });
       var known = {};
       nextCats.forEach(function (c) { known[c.id] = true; });
       items = incoming.map(function (it) {
@@ -1499,6 +1675,7 @@
       render();
       fillCategorySelect();
       toast(items.length + '개를 불러왔어요');
+      scheduleSync();
       return;
     }
 
@@ -1538,6 +1715,451 @@
     render();
     fillCategorySelect();
     toast(added ? added + '개를 더했어요' : '이미 같은 상품이 다 있어요');
+    scheduleSync();
+  }
+
+  /* ---------------- GitHub 비밀 창고(Gist) 동기화 ---------------- */
+  var SYNC_KEY = 'yeoldul.wishlist.sync.v1';      /* 토큰·Gist 정보는 이 키에만 저장한다 */
+  var GIST_DESC = 'yeoldul-wishlist-sync';
+  var GIST_FILE = 'wishlist-sync.json';
+  var GH_API = 'https://api.github.com';
+  var MAX_TOMBS = 400;
+  var SYNC_TEXT = { idle: '연결 전', synced: '동기화됨', syncing: '동기화 중', error: '오류' };
+
+  var sync = {
+    token: '', gistId: '', login: '', lastSyncAt: 0,
+    state: 'idle', message: '', busy: false, again: false, timer: null
+  };
+
+  function SyncError(code, message) {
+    this.code = code;
+    this.message = message;
+  }
+  SyncError.prototype = Object.create(Error.prototype);
+
+  function cleanTombs(raw) {
+    var out = {};
+    if (!raw || typeof raw !== 'object') return out;
+    Object.keys(raw).forEach(function (k) {
+      var t = Number(raw[k]);
+      if (k && isFinite(t) && t > 0) out[k] = t;
+    });
+    return out;
+  }
+  function pruneTombs(map) {
+    var keys = Object.keys(map);
+    if (keys.length <= MAX_TOMBS) return map;
+    keys.sort(function (a, b) { return map[b] - map[a]; });
+    var out = {};
+    keys.slice(0, MAX_TOMBS).forEach(function (k) { out[k] = map[k]; });
+    return out;
+  }
+
+  /* --- 열쇠 보관 --- */
+  function readSync() {
+    var data = null;
+    try {
+      var raw = localStorage.getItem(SYNC_KEY);
+      if (raw) data = JSON.parse(raw);
+    } catch (e) { data = null; }
+    if (!data || typeof data !== 'object') return;
+    sync.token = typeof data.token === 'string' ? data.token : '';
+    sync.gistId = typeof data.gistId === 'string' ? data.gistId : '';
+    sync.login = typeof data.login === 'string' ? data.login : '';
+    sync.lastSyncAt = Number(data.lastSyncAt) || 0;
+  }
+  function saveSync() {
+    try {
+      if (!sync.token) { localStorage.removeItem(SYNC_KEY); return; }
+      localStorage.setItem(SYNC_KEY, JSON.stringify({
+        token: sync.token, gistId: sync.gistId, login: sync.login, lastSyncAt: sync.lastSyncAt
+      }));
+    } catch (e) { /* 저장 공간이 막혀 있어도 앱은 계속 동작한다 */ }
+  }
+
+  /* --- GitHub API --- */
+  async function gh(path, opts) {
+    opts = opts || {};
+    var headers = {
+      'Accept': 'application/vnd.github+json',
+      'Authorization': 'Bearer ' + sync.token,
+      'X-GitHub-Api-Version': '2022-11-28'
+    };
+    if (opts.body) headers['Content-Type'] = 'application/json';
+    var res;
+    try {
+      res = await fetch(GH_API + path, {
+        method: opts.method || 'GET',
+        headers: headers,
+        body: opts.body ? JSON.stringify(opts.body) : undefined,
+        cache: 'no-store'
+      });
+    } catch (e) {
+      throw new SyncError('net', '인터넷에 연결하지 못했어요. 연결을 확인해 주세요');
+    }
+    var text = '';
+    try { text = await res.text(); } catch (e) { text = ''; }
+    var data = null;
+    try { data = text ? JSON.parse(text) : null; } catch (e) { data = null; }
+    if (!res.ok) {
+      var msg = data && data.message ? String(data.message) : '';
+      if (res.status === 401) throw new SyncError('auth', '열쇠(토큰)가 맞지 않아요. 다시 확인해 주세요');
+      if (res.status === 403) throw new SyncError('auth', /rate limit/i.test(msg) ? '요청이 너무 많았어요. 잠시 뒤 다시 시도해 주세요' : '이 열쇠로는 할 수 없어요. gist 권한을 확인해 주세요');
+      if (res.status === 404) throw new SyncError('nf', '비밀 창고를 찾지 못했어요');
+      if (res.status === 422) throw new SyncError('size', '사진이 많아 창고에 담기에는 내용이 너무 커요. 사진을 줄이거나 백업 파일을 이용해 주세요');
+      throw new SyncError('http', 'GitHub에서 거절했어요 (' + res.status + ')');
+    }
+    return data;
+  }
+
+  function syncPayload() {
+    return {
+      app: 'wishlist',
+      version: 4,
+      savedAt: new Date().toISOString(),
+      updatedAt: Date.now(),
+      categories: categories.map(function (c) {
+        return { id: c.id, name: c.name, updatedAt: c.updatedAt || 0 };
+      }),
+      items: items,
+      deletedIds: tombstones,
+      deletedCatIds: catTombstones
+    };
+  }
+  function filesBody(content) {
+    var files = {};
+    files[GIST_FILE] = { content: content };
+    return { files: files };
+  }
+
+  /* 열쇠 하나로 내 비밀 창고를 찾는다 */
+  async function findGist() {
+    for (var page = 1; page <= 3; page++) {
+      var list = await gh('/gists?per_page=100&page=' + page);
+      if (!Array.isArray(list)) return '';
+      for (var i = 0; i < list.length; i++) {
+        var g = list[i];
+        if (g && g.description === GIST_DESC && g.files && g.files[GIST_FILE]) return g.id;
+      }
+      if (list.length < 100) return '';
+    }
+    return '';
+  }
+  async function ensureGist() {
+    if (sync.gistId) return sync.gistId;
+    var id = await findGist();
+    if (!id) {
+      var made = await gh('/gists', {
+        method: 'POST',
+        body: {
+          description: GIST_DESC,
+          public: false,
+          files: filesBody(JSON.stringify(syncPayload())).files
+        }
+      });
+      id = made && made.id ? made.id : '';
+      if (!id) throw new SyncError('create', '비밀 창고를 만들지 못했어요');
+    }
+    sync.gistId = id;
+    saveSync();
+    return id;
+  }
+  async function readRemote(id) {
+    var g = await gh('/gists/' + id);
+    var file = g && g.files ? g.files[GIST_FILE] : null;
+    if (!file) return null;
+    var text = file.content;
+    /* GitHub는 1MB가 넘는 파일 내용을 잘라서 준다. 그때는 원문 주소로 받아온다 */
+    if ((file.truncated || !text) && file.raw_url) {
+      try {
+        var r = await fetch(file.raw_url, { cache: 'no-store' });
+        if (r.ok) text = await r.text();
+      } catch (e) { /* 아래에서 걸러진다 */ }
+    }
+    if (!text) return null;
+    try { return JSON.parse(text); } catch (e) {
+      throw new SyncError('parse', '창고의 내용을 읽지 못했어요. 잠시 뒤 다시 시도해 주세요');
+    }
+  }
+
+  /* 원격 내용을 로컬에 합친다: id 기준 최신 updatedAt 우선, 삭제 표시는 삭제 시각으로 판단 */
+  function mergeRemote(remote) {
+    if (!remote || typeof remote !== 'object') return false;
+    var changed = false;
+    var rTombs = cleanTombs(remote.deletedIds);
+    var rCatTombs = cleanTombs(remote.deletedCatIds);
+
+    Object.keys(rTombs).forEach(function (id) {
+      if (!tombstones[id] || rTombs[id] > tombstones[id]) { tombstones[id] = rTombs[id]; changed = true; }
+    });
+    Object.keys(rCatTombs).forEach(function (id) {
+      if (!catTombstones[id] || rCatTombs[id] > catTombstones[id]) { catTombstones[id] = rCatTombs[id]; changed = true; }
+    });
+
+    /* 분류: 로컬 것을 기준으로, 로컬에 없는 살아 있는 분류만 더한다 */
+    var byId = {};
+    categories.forEach(function (c) { byId[c.id] = c; });
+    var rCats = Array.isArray(remote.categories) ? cleanCategories(remote.categories) : [];
+    rCats.forEach(function (rc) {
+      var tomb = catTombstones[rc.id];
+      if (tomb && tomb >= (rc.updatedAt || 0)) return;
+      var mine = byId[rc.id];
+      if (!mine) {
+        if (categories.length >= MAX_CATS) return;
+        categories.push(rc);
+        byId[rc.id] = rc;
+        changed = true;
+      } else if ((rc.updatedAt || 0) > (mine.updatedAt || 0)) {
+        mine.name = rc.name;
+        mine.updatedAt = rc.updatedAt;
+        changed = true;
+      }
+    });
+    var beforeCats = categories.length;
+    categories = categories.filter(function (c) {
+      var tomb = catTombstones[c.id];
+      return !(tomb && tomb >= (c.updatedAt || 0));
+    });
+    if (categories.length !== beforeCats) changed = true;
+
+    /* 지워진 상품은 로컬에서도 지운다 */
+    var beforeItems = items.length;
+    items = items.filter(function (it) {
+      var t = tombstones[it.id];
+      return !(t && t >= (it.updatedAt || 0));
+    });
+    if (items.length !== beforeItems) changed = true;
+
+    /* 상품: 같은 id는 updatedAt이 더 최근인 쪽을 남긴다 */
+    var map = {};
+    items.forEach(function (it) { map[it.id] = it; });
+    (Array.isArray(remote.items) ? remote.items : []).forEach(function (raw) {
+      var rit = normalize(raw);
+      if (!rit) return;
+      var tomb = tombstones[rit.id];
+      if (tomb && tomb >= rit.updatedAt) return;
+      var mine = map[rit.id];
+      if (!mine) {
+        items.push(rit);
+        map[rit.id] = rit;
+        changed = true;
+        return;
+      }
+      if (rit.updatedAt > mine.updatedAt) {
+        var idx = items.indexOf(mine);
+        if (idx >= 0) items[idx] = rit;
+        map[rit.id] = rit;
+        changed = true;
+      }
+    });
+
+    /* 없는 분류를 가리키는 상품은 ‘미지정’으로 */
+    var known = {};
+    categories.forEach(function (c) { known[c.id] = true; });
+    items.forEach(function (it) {
+      if (it.categoryId && !known[it.categoryId]) { it.categoryId = ''; changed = true; }
+    });
+
+    tombstones = pruneTombs(tombstones);
+    catTombstones = pruneTombs(catTombstones);
+    return changed;
+  }
+
+  async function syncNow(opts) {
+    opts = opts || {};
+    if (!sync.token) { toast('먼저 GitHub 열쇠로 연결해 주세요', 'error'); return false; }
+    if (sync.busy) { sync.again = true; return false; }
+    sync.busy = true;
+    setSyncState('syncing', '동기화하는 중…');
+    var retried = false;
+    try {
+      while (true) {
+        try {
+          var id = await ensureGist();
+          var remote = await readRemote(id);
+          var changed = remote ? mergeRemote(remote) : false;
+          if (changed) {
+            if (persist()) {
+              render();
+              if (!els.sheetLayer.classList.contains('show')) fillCategorySelect();
+            }
+          }
+          await gh('/gists/' + id, { method: 'PATCH', body: filesBody(JSON.stringify(syncPayload())) });
+          sync.lastSyncAt = Date.now();
+          saveSync();
+          setSyncState('synced', '방금 비밀 창고와 맞췄어요');
+          if (changed && !opts.silent) toast('다른 기기의 변경을 가져왔어요');
+          else if (!opts.silent) toast('동기화했어요');
+          return true;
+        } catch (inner) {
+          /* 창고가 GitHub에서 지워졌다면 다시 찾아 새로 만든다 */
+          if (inner && inner.code === 'nf' && !retried) {
+            retried = true;
+            sync.gistId = '';
+            saveSync();
+            continue;
+          }
+          throw inner;
+        }
+      }
+    } catch (err) {
+      var msg = err && err.message ? err.message : '동기화하지 못했어요';
+      setSyncState('error', msg);
+      if (!opts.silent) toast(msg, 'error');
+      return false;
+    } finally {
+      sync.busy = false;
+      renderSyncUI();
+      if (sync.again) { sync.again = false; scheduleSync(300); }
+    }
+  }
+
+  function scheduleSync(delay) {
+    if (!sync.token) return;
+    if (sync.timer) clearTimeout(sync.timer);
+    sync.timer = setTimeout(function () {
+      sync.timer = null;
+      syncNow({ silent: true });
+    }, typeof delay === 'number' ? delay : 900);
+  }
+
+  async function connectWithToken(raw) {
+    var token = str(raw).replace(/\s+/g, '');
+    if (!token) {
+      toast('열쇠(토큰)를 붙여넣어 주세요', 'error');
+      try { els.syncToken.focus(); } catch (e) {}
+      return false;
+    }
+    if (sync.busy) { toast('지금 동기화 중이에요. 잠시만 기다려 주세요'); return false; }
+    var prev = { token: sync.token, gistId: sync.gistId, login: sync.login };
+    sync.busy = true;
+    setSyncState('syncing', 'GitHub에 연결하는 중…');
+    sync.token = token;
+    sync.gistId = '';
+    sync.login = '';
+    try {
+      var me = await gh('/user');
+      sync.login = me && me.login ? String(me.login) : '';
+    } catch (err) {
+      sync.token = prev.token;
+      sync.gistId = prev.gistId;
+      sync.login = prev.login;
+      sync.busy = false;
+      saveSync();
+      setSyncState(prev.token ? 'synced' : 'error', err.message || '연결하지 못했어요');
+      toast(err.message || '연결하지 못했어요', 'error');
+      return false;
+    }
+    sync.busy = false;
+    saveSync();
+    var ok = await syncNow({ silent: true });
+    if (!ok) {
+      if (!sync.gistId) {      /* 창고를 만들지 못했으면 연결 자체를 되돌린다 */
+        sync.token = prev.token;
+        sync.gistId = prev.gistId;
+        sync.login = prev.login;
+        saveSync();
+        setSyncState(prev.token ? 'synced' : 'error', '연결하지 못했어요. 잠시 뒤 다시 시도해 주세요');
+      }
+      return false;
+    }
+    if (els.syncToken) els.syncToken.value = '';
+    setSyncState('synced', '연결하고 비밀 창고와 맞췄어요' + (sync.login ? ' (@' + sync.login + ')' : ''));
+    toast(sync.login ? '@' + sync.login + ' 계정으로 연결했어요' : '동기화를 연결했어요');
+    renderSyncUI();
+    render();
+    return true;
+  }
+
+  async function disconnectSync() {
+    var ok = await askConfirm({
+      title: '동기화를 끊을까요?',
+      message: '이 기기에 담아둔 목록은 그대로 남고, 열쇠(토큰)만 지워요.\n비밀 창고에 보관된 내용도 지워지지 않아요.',
+      actions: [
+        { label: '연결 끊기', value: true, variant: 'danger' },
+        { label: '취소', value: false, variant: 'soft' }
+      ]
+    });
+    if (!ok) return;
+    if (sync.timer) { clearTimeout(sync.timer); sync.timer = null; }
+    sync.token = '';
+    sync.gistId = '';
+    sync.login = '';
+    sync.lastSyncAt = 0;
+    sync.message = '';
+    saveSync();
+    if (els.syncToken) els.syncToken.value = '';
+    setSyncState('idle', '');
+    render();
+    toast('동기화 연결을 끊었어요. 목록은 그대로예요');
+  }
+
+  /* --- 화면 --- */
+  function syncDotState() {
+    if (!sync.token) return sync.state === 'error' ? 'error' : 'idle';
+    if (sync.state === 'syncing') return 'syncing';
+    if (sync.state === 'error') return 'error';
+    return 'synced';
+  }
+  function timeAgo(t) {
+    var d = Date.now() - t;
+    if (d < 0) d = 0;
+    if (d < 60000) return '방금';
+    if (d < 3600000) return Math.floor(d / 60000) + '분 전';
+    if (d < 86400000) return Math.floor(d / 3600000) + '시간 전';
+    return Math.floor(d / 86400000) + '일 전';
+  }
+  function renderSyncUI() {
+    var dotState = syncDotState();
+    if (els.syncDot) els.syncDot.setAttribute('data-state', dotState);
+    if (els.btnSync) {
+      var label = '동기화 · ' + SYNC_TEXT[dotState === 'idle' ? 'idle' : dotState];
+      els.btnSync.setAttribute('aria-label', label + (sync.message ? ' · ' + sync.message : ''));
+      els.btnSync.title = label;
+    }
+    var connected = !!sync.token;
+    if (els.syncOff) els.syncOff.hidden = connected;
+    if (els.syncOn) els.syncOn.hidden = !connected;
+    if (connected) {
+      if (els.syncLogin) els.syncLogin.textContent = sync.login ? '@' + sync.login : '확인 중';
+      if (els.syncLast) els.syncLast.textContent = sync.lastSyncAt ? timeAgo(sync.lastSyncAt) : '아직 없음';
+      if (els.syncGistLink) {
+        if (sync.gistId) {
+          els.syncGistLink.href = 'https://gist.github.com/' + sync.gistId;
+          els.syncGistLink.textContent = '비밀 창고 열기 ↗';
+        } else {
+          els.syncGistLink.removeAttribute('href');
+          els.syncGistLink.textContent = '아직 없음';
+        }
+      }
+    }
+    if (els.syncStatus) {
+      var msg = sync.message || (connected ? '자동으로 저장하고 있어요' : '');
+      els.syncStatus.textContent = msg;
+      els.syncStatus.hidden = !msg;
+      els.syncStatus.className = 'sync-status' + (sync.state === 'error' ? ' is-error' : '');
+    }
+    if (els.syncOffStatus) {
+      var offMsg = !connected && sync.state === 'error' ? (sync.message || '연결하지 못했어요') : '';
+      els.syncOffStatus.textContent = offMsg;
+      els.syncOffStatus.hidden = !offMsg;
+    }
+    if (els.btnSyncNow) {
+      els.btnSyncNow.disabled = !!sync.busy;
+      els.btnSyncNow.textContent = sync.busy ? '동기화 중…' : '지금 동기화';
+    }
+  }
+  function setSyncState(state, message) {
+    sync.state = state;
+    sync.message = message || '';
+    renderSyncUI();
+  }
+  function openSyncSheet() {
+    renderSyncUI();
+    openLayer(els.syncLayer);
+    if (!sync.token) {
+      setTimeout(function () { try { els.syncToken.focus({ preventScroll: true }); } catch (e) {} }, 320);
+    }
   }
 
   /* ---------------- events ---------------- */
@@ -1673,6 +2295,7 @@
   document.addEventListener('keydown', function (e) {
     if (e.key !== 'Escape') return;
     if (els.confirmLayer.classList.contains('show')) { dismissConfirm(); return; }
+    if (els.syncLayer.classList.contains('show')) { closeLayer(els.syncLayer); return; }
     if (els.catLayer.classList.contains('show')) { closeCatSheet(); return; }
     if (els.sheetLayer.classList.contains('show')) closeSheet();
   });
@@ -1794,6 +2417,7 @@
     render();
     closeSheet();
     toast(wasEdit ? '수정했어요' : '위시리스트에 담았어요');
+    scheduleSync();
   });
 
   els.deleteBtn.addEventListener('click', async function () {
@@ -1809,12 +2433,31 @@
     });
     if (!ok) return;
     var prev = items.slice();
+    tombstones[item.id] = Date.now();
     items = items.filter(function (i) { return i.id !== item.id; });
     if (!persist()) { items = prev; return; }
     render();
     closeSheet();
     toast('삭제했어요');
+    scheduleSync();
   });
+
+  els.btnSync.addEventListener('click', openSyncSheet);
+  els.syncClose.addEventListener('click', function () { closeLayer(els.syncLayer); });
+  els.syncLayer.addEventListener('click', function (e) {
+    if (e.target === els.syncLayer) closeLayer(els.syncLayer);
+  });
+  els.btnSyncConnect.addEventListener('click', function () { connectWithToken(els.syncToken.value); });
+  els.syncToken.addEventListener('input', function () {
+    if (!sync.token && sync.state === 'error') setSyncState('idle', '');
+  });
+  els.syncToken.addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    connectWithToken(els.syncToken.value);
+  });
+  els.btnSyncNow.addEventListener('click', function () { syncNow({ silent: false }); });
+  els.btnSyncOff.addEventListener('click', disconnectSync);
 
   els.btnExport.addEventListener('click', exportJSON);
   els.btnImport.addEventListener('click', function () { els.importInput.click(); });
@@ -1826,9 +2469,15 @@
   });
 
   /* ---------------- boot ---------------- */
+  readSync();
   items = load();
   fillCategorySelect('');
   render();
+  setSyncState(sync.token ? 'synced' : 'idle', '');
+  if (sync.token) {
+    /* 앱을 열면 비밀 창고의 최신 내용을 먼저 확인한다 */
+    setTimeout(function () { syncNow({ silent: true }); }, 350);
+  }
 
   if ('serviceWorker' in navigator) { /* single-file app: no external service worker */ }
 })();
