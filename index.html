@@ -68,13 +68,13 @@
   }
   .logo svg{ width:17px; height:17px; }
   .sub{ margin:3px 0 0; font-size:12.5px; font-weight:500; color:var(--muted); letter-spacing:-.01em; }
-  .tools{ display:flex; gap:8px; flex:none; }
+  .tools{ display:flex; gap:6px; flex:none; }
   .tool{
     display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
-    width:46px; height:46px; padding:0;
+    width:42px; height:46px; padding:0;
     border:1px solid var(--line-strong); border-radius:14px;
     background:rgba(255,255,255,.85); color:var(--ink-soft);
-    font-size:10px; font-weight:700; letter-spacing:-.01em;
+    font-size:9.5px; font-weight:700; letter-spacing:-.01em;
     cursor:pointer; transition:transform .12s ease, background .15s ease;
   }
   .tool svg{ width:16px; height:16px; }
@@ -527,6 +527,11 @@
   .sync-status[hidden]{ display:none; }
   #syncOn .sheet-actions{ margin-top:14px; }
 
+  @media (max-width:390px){
+    .tools{ gap:4px; }
+    .tool{ width:38px; height:42px; font-size:9px; border-radius:12px; }
+  }
+
   @media (min-width:640px){
     .list{ grid-template-columns:1fr 1fr; }
     .layer{ align-items:center; padding:24px; }
@@ -554,6 +559,10 @@
         <p class="sub" id="headSub">갖고 싶은 걸 모아두는 곳</p>
       </div>
       <div class="tools">
+        <button type="button" class="tool" id="btnSettings" aria-label="설정 열기">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          <span>설정</span>
+        </button>
         <button type="button" class="tool" id="btnExport" aria-label="목록을 JSON 파일로 백업">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v10"/><path d="M8 10.5l4 4 4-4"/><path d="M5 19h14"/></svg>
           <span>백업</span>
@@ -606,7 +615,7 @@
     </label>
   </div>
 
-  <p class="sort-note" id="sortNote" hidden>엔화만 적힌 상품은 1엔 = 9원으로 환산해 비교해요</p>
+  <p class="sort-note" id="sortNote" hidden>엔화만 적힌 상품은 설정된 환율로 환산해 비교해요</p>
 
   <div class="list" id="list"></div>
 
@@ -629,6 +638,30 @@
 <button type="button" class="fab" id="fab" aria-label="상품 추가">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
 </button>
+
+<!-- 환경 설정 시트 -->
+<div class="layer" id="settingsLayer" aria-hidden="true">
+  <div class="sheet" id="settingsSheet" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+    <div class="handle" aria-hidden="true"></div>
+    <div class="sheet-head">
+      <h2 id="settingsTitle">환경 설정</h2>
+      <button type="button" class="icon-btn" id="settingsClose" aria-label="닫기">✕</button>
+    </div>
+    
+    <div class="field" style="margin-top:8px">
+      <label for="fExchangeRate">엔화 환율 (100엔 기준)</label>
+      <div class="price-wrap">
+        <input id="fExchangeRate" class="input" type="text" inputmode="numeric" placeholder="900" aria-label="100엔당 원화 금액">
+        <span class="unit">원</span>
+      </div>
+      <p class="field-note">가격순 정렬 시 100엔을 얼마로 환산할지 정합니다.</p>
+    </div>
+
+    <div class="sheet-actions" style="margin-top:24px">
+      <button type="button" class="btn primary" id="settingsDone">저장하기</button>
+    </div>
+  </div>
+</div>
 
 <!-- 추가 / 수정 시트 -->
 <div class="layer" id="sheetLayer" aria-hidden="true">
@@ -703,7 +736,7 @@
             <span class="unit">엔</span>
           </div>
         </div>
-        <p class="field-note">한쪽만 적어도 되고, 둘 다 적으면 함께 보여드려요.<br>가격순 정렬은 1엔 = 9원으로 환산해 비교해요.</p>
+        <p class="field-note">한쪽만 적어도 되고, 둘 다 적으면 함께 보여드려요.<br>가격순 정렬은 설정된 환율로 환산해 비교해요.</p>
       </div>
 
       <div class="field">
@@ -867,7 +900,6 @@
   'use strict';
 
   var STORE_KEY = 'yeoldul.wishlist.v1';
-  var JPY_TO_KRW = 9;          /* 가격 비교용 환산 기준: 1엔 ≈ 9원 */
   var MAX_CATS = 20;
   var $ = function (sel, root) { return (root || document).querySelector(sel); };
 
@@ -891,6 +923,11 @@
     countDone: $('[data-count="done"]'),
     usage: $('#usage'),
     fab: $('#fab'),
+    btnSettings: $('#btnSettings'),
+    settingsLayer: $('#settingsLayer'),
+    settingsClose: $('#settingsClose'),
+    fExchangeRate: $('#fExchangeRate'),
+    settingsDone: $('#settingsDone'),
     sheetLayer: $('#sheetLayer'),
     sheet: $('#sheet'),
     sheetTitle: $('#sheetTitle'),
@@ -950,6 +987,46 @@
     toast: $('#toast')
   };
 
+  /* ---------------- IndexedDB Wrapper ---------------- */
+  var idb = {
+    dbName: 'WishlistAppDB',
+    version: 1,
+    store: 'state',
+    _db: null,
+    init: function () {
+      if (this._db) return Promise.resolve(this._db);
+      return new Promise(function (resolve, reject) {
+        var req = indexedDB.open(idb.dbName, idb.version);
+        req.onupgradeneeded = function (e) {
+          e.target.result.createObjectStore(idb.store);
+        };
+        req.onsuccess = function (e) { idb._db = e.target.result; resolve(idb._db); };
+        req.onerror = function (e) { reject(e); };
+      });
+    },
+    get: function (key) {
+      return this.init().then(function (db) {
+        return new Promise(function (resolve, reject) {
+          var tx = db.transaction(idb.store, 'readonly');
+          var req = tx.objectStore(idb.store).get(key);
+          req.onsuccess = function () { resolve(req.result); };
+          req.onerror = function (e) { reject(e); };
+        });
+      });
+    },
+    set: function (key, val) {
+      return this.init().then(function (db) {
+        return new Promise(function (resolve, reject) {
+          var tx = db.transaction(idb.store, 'readwrite');
+          var req = tx.objectStore(idb.store).put(val, key);
+          req.onsuccess = function () { resolve(); };
+          req.onerror = function (e) { reject(e); };
+        });
+      });
+    }
+  };
+
+  var settings = { jpyRate: 900, updatedAt: 0 };
   var items = [];
   var categories = [];
   var tombstones = {};      /* 지운 상품: id → 지운 시각(ms) */
@@ -993,16 +1070,16 @@
     if (it.paidJpy > 0) out.push(fmtJpy(it.paidJpy));
     return out.join(' · ');
   }
-  /* 적정가보다 싸게 샀을 때의 차액. 같은 통화끼리만 비교하고, 원화를 먼저 본다 */
+  
   function savedAmount(it) {
     if (it.paidKrw > 0 && it.priceKrw > it.paidKrw) return { n: it.priceKrw - it.paidKrw, cur: 'krw' };
     if (it.paidJpy > 0 && it.priceJpy > it.paidJpy) return { n: it.priceJpy - it.paidJpy, cur: 'jpy' };
     return null;
   }
-  /* 정렬용 비교값: 원화가 있으면 원화, 엔화만 있으면 1엔=9원 환산, 없으면 null(항상 맨 뒤) */
+  
   function priceRank(it) {
     if (it.priceKrw > 0) return it.priceKrw;
-    if (it.priceJpy > 0) return it.priceJpy * JPY_TO_KRW;
+    if (it.priceJpy > 0) return it.priceJpy * (settings.jpyRate / 100);
     return null;
   }
   function esc(s) {
@@ -1079,7 +1156,6 @@
     var image = isPhotoData(imageRaw) ? imageRaw : safeUrl(imageRaw);
     var createdAt = Number(raw.createdAt);
     if (!isFinite(createdAt) || createdAt <= 0) createdAt = Date.now();
-    /* 기존 단일 price 필드는 원화(priceKrw)로 이어받는다 */
     var krwRaw = (raw.priceKrw !== undefined && raw.priceKrw !== null && raw.priceKrw !== '') ? raw.priceKrw : raw.price;
     return {
       id: str(raw.id) || uid(),
@@ -1088,7 +1164,6 @@
       url: safeUrl(raw.url),
       priceKrw: toNum(krwRaw),
       priceJpy: toNum(raw.priceJpy),
-      /* 구매한 가격: 예전 백업에는 없으므로 없으면 0 */
       paidKrw: toNum(raw.paidKrw),
       paidJpy: toNum(raw.paidJpy),
       memo: str(raw.memo).slice(0, 300),
@@ -1101,18 +1176,49 @@
   }
 
   /* ---------------- storage ---------------- */
-  function load() {
+  function buildPayload() {
+    return {
+      app: 'wishlist',
+      version: 5,
+      savedAt: new Date().toISOString(),
+      settings: settings,
+      categories: categories,
+      items: items,
+      deletedIds: tombstones,
+      deletedCatIds: catTombstones
+    };
+  }
+
+  async function load() {
     var data = null;
+    var fromLocal = false;
+
+    /* IndexedDB는 시크릿 모드 등에서 차단될 수 있어 따로 감싼다.
+       여기서 실패해도 아래 localStorage 경로로 이어서 읽는다. */
     try {
-      var raw = localStorage.getItem(STORE_KEY);
-      if (raw) data = JSON.parse(raw);
+      data = await idb.get('wishlist_data');
     } catch (e) { data = null; }
+
+    if (!data) {
+      /* IndexedDB가 비었거나 쓸 수 없으면 기존 localStorage에서 읽어온다 */
+      try {
+        var raw = localStorage.getItem(STORE_KEY);
+        if (raw) {
+          data = JSON.parse(raw);
+          fromLocal = true;
+        }
+      } catch (e) { data = null; }
+    }
+
+    if (data && data.settings) {
+      settings.jpyRate = toNum(data.settings.jpyRate) || 900;
+      settings.updatedAt = data.settings.updatedAt || 0;
+    }
 
     var arr = Array.isArray(data) ? data : (data && Array.isArray(data.items) ? data.items : []);
     var cats = (data && !Array.isArray(data) && Array.isArray(data.categories)) ? data.categories : null;
     tombstones = cleanTombs(data && !Array.isArray(data) ? data.deletedIds : null);
     catTombstones = cleanTombs(data && !Array.isArray(data) ? data.deletedCatIds : null);
-    /* 저장된 분류 목록이 있으면 빈 목록도 그대로 존중하고, 없을 때만 기본 분류를 만든다 */
     categories = cats ? cleanCategories(cats) : defaultCategories();
 
     var known = {};
@@ -1126,33 +1232,37 @@
       seen[it.id] = true;
       out.push(it);
     });
-    return out;
-  }
-  function persist() {
-    var payload = {
-      app: 'wishlist',
-      version: 3,
-      savedAt: new Date().toISOString(),
-      categories: categories,
-      items: items,
-      deletedIds: tombstones,
-      deletedCatIds: catTombstones
-    };
-    try {
-      localStorage.setItem(STORE_KEY, JSON.stringify(payload));
-      return true;
-    } catch (e) {
-      var quota = e && (e.name === 'QuotaExceededError' || e.code === 22);
-      toast(quota
-        ? '저장 공간이 부족해요. 사진이 큰 상품을 정리해 주세요.'
-        : '이 브라우저에서는 자동 저장이 막혀 있어요. Chrome에서 열거나 백업을 이용해 주세요.', 'error');
-      return false;
+    
+    items = out;
+
+    /* localStorage에서 옮겨온 데이터는 IndexedDB에 한 번 안착시켜
+       다음 로드부터는 IndexedDB에서 바로 읽도록 한다(실패해도 앱 동작엔 지장 없게) */
+    if (fromLocal) {
+      try { await idb.set('wishlist_data', buildPayload()); } catch (e) { /* 그대로 localStorage로 동작 */ }
     }
   }
+
+  async function persist() {
+    var payload = buildPayload();
+    try {
+      await idb.set('wishlist_data', payload);
+      return true;
+    } catch (e) {
+      /* IndexedDB를 쓸 수 없거나 저장에 실패하면 localStorage로 한 번 더 시도한다 */
+      try {
+        localStorage.setItem(STORE_KEY, JSON.stringify(payload));
+        return true;
+      } catch (e2) {
+        toast('저장 공간 문제가 발생했어요. 용량이 꽉 찼을 수 있습니다.', 'error');
+        return false;
+      }
+    }
+  }
+
   function storageBytes() {
     try {
-      var raw = localStorage.getItem(STORE_KEY);
-      if (!raw) return 0;
+      /* 대략적인 인메모리 데이터 크기를 계산합니다. */
+      var raw = JSON.stringify({ settings: settings, categories: categories, items: items });
       return new Blob([raw]).size;
     } catch (e) { return 0; }
   }
@@ -1190,7 +1300,6 @@
     return out;
   }
 
-  /* 카드 가격 영역: 구매 가격이 있으면 적정/구매를 두 줄로, 없으면 기존처럼 한 줄 */
   function priceHTML(it) {
     var list = priceLabel(it);
     var paid = paidLabel(it);
@@ -1256,27 +1365,8 @@
     els.categoryChips.innerHTML = html;
   }
 
-  function render() {
-    var total = items.length;
-    var doneCount = items.filter(function (i) { return i.done; }).length;
-    var todoCount = total - doneCount;
-
-    if (view.cat !== 'all' && view.cat !== '__none' && !catName(view.cat)) view.cat = 'all';
-    if (view.filter !== 'all' && view.filter !== 'todo' && view.filter !== 'done') view.filter = 'all';
-
-    var list = visibleItems(items, view);
-
-    els.countAll.textContent = total;
-    els.countTodo.textContent = todoCount;
-    els.countDone.textContent = doneCount;
-    els.headSub.textContent = total ? '담아둔 ' + total + '개 · 아직 살 것 ' + todoCount + '개' : '갖고 싶은 걸 모아두는 곳';
-    els.listCount.textContent = list.length + '개';
-    els.list.innerHTML = list.map(cardHTML).join('');
-
-    var jpyOnly = items.some(function (it) { return it.priceKrw === 0 && it.priceJpy > 0; });
-    els.sortNote.hidden = !(view.sort !== 'newest' && jpyOnly);
-
-    if (!list.length) {
+  function checkEmptyList(total) {
+    if (els.list.children.length === 0) {
       els.empty.hidden = false;
       if (!total) {
         els.emptyTitle.textContent = '아직 담아둔 게 없어요';
@@ -1292,13 +1382,37 @@
     } else {
       els.empty.hidden = true;
     }
+  }
 
+  function render() {
+    var total = items.length;
+    var doneCount = items.filter(function (i) { return i.done; }).length;
+    var todoCount = total - doneCount;
+
+    if (view.cat !== 'all' && view.cat !== '__none' && !catName(view.cat)) view.cat = 'all';
+    if (view.filter !== 'all' && view.filter !== 'todo' && view.filter !== 'done') view.filter = 'all';
+
+    var list = visibleItems(items, view);
+
+    els.countAll.textContent = total;
+    els.countTodo.textContent = todoCount;
+    els.countDone.textContent = doneCount;
+    els.headSub.textContent = total ? '담아둔 ' + total + '개 · 아직 살 것 ' + todoCount + '개' : '갖고 싶은 걸 모아두는 곳';
+    els.listCount.textContent = list.length + '개';
+    
+    // 전체 렌더링
+    els.list.innerHTML = list.map(cardHTML).join('');
+
+    var jpyOnly = items.some(function (it) { return it.priceKrw === 0 && it.priceJpy > 0; });
+    els.sortNote.hidden = !(view.sort !== 'newest' && jpyOnly);
+
+    checkEmptyList(total);
     renderCategoryChips();
 
     var bytes = storageBytes();
     els.usage.innerHTML = (sync.token
-      ? '이 기기 브라우저에 저장되고 <b>비밀 창고</b>에도 함께 보관돼요'
-      : '이 기기 브라우저에만 저장돼요') +
+      ? '안전한 보관소에 저장되고 <b>비밀 창고</b>에도 함께 보관돼요'
+      : '현재 기기의 브라우저에만 저장돼요') +
       ' · <b>' + total + '개</b>' +
       (bytes ? ' · 약 ' + prettySize(bytes) : '') +
       '<br>' + (sync.token
@@ -1403,7 +1517,7 @@
     fillCategorySelect();
   }
 
-  function renameCategory(id, rawName, inputEl) {
+  async function renameCategory(id, rawName, inputEl) {
     var c = null;
     categories.forEach(function (x) { if (x.id === id) c = x; });
     if (!c) return;
@@ -1425,7 +1539,8 @@
     }
     c.name = name;
     c.updatedAt = Date.now();
-    if (!persist()) return;
+    
+    if (!(await persist())) return;
     render();
     renderCatList();
     fillCategorySelect();
@@ -1433,7 +1548,7 @@
     scheduleSync();
   }
 
-  function addCategory(rawName) {
+  async function addCategory(rawName) {
     var name = str(rawName).replace(/\s+/g, ' ').slice(0, 16);
     if (!name) {
       toast('분류 이름을 적어 주세요', 'error');
@@ -1449,7 +1564,8 @@
       return false;
     }
     categories.push({ id: uid(), name: name, updatedAt: Date.now() });
-    if (!persist()) { categories.pop(); return false; }
+    
+    if (!(await persist())) { categories.pop(); return false; }
     els.newCatName.value = '';
     render();
     renderCatList();
@@ -1482,7 +1598,8 @@
       return it.categoryId === id ? Object.assign({}, it, { categoryId: '', updatedAt: Date.now() }) : it;
     });
     if (view.cat === id) view.cat = 'all';
-    if (!persist()) { items = prevItems; categories = prevCats; return; }
+    
+    if (!(await persist())) { items = prevItems; categories = prevCats; return; }
     render();
     renderCatList();
     fillCategorySelect();
@@ -1593,14 +1710,58 @@
     });
   }
 
-  /* ---------------- item actions ---------------- */
-  function toggleDone(id) {
+  /* ---------------- item actions (Partial Updates Optimized) ---------------- */
+  async function toggleDone(id) {
     var it = items.filter(function (i) { return i.id === id; })[0];
     if (!it) return;
     it.done = !it.done;
     it.updatedAt = Date.now();
-    persist();
-    render();
+
+    // DOM 즉각적 부분 업데이트 (DOM Thrashing 방지)
+    var cardEl = els.list.querySelector('.card[data-id="' + id + '"]');
+    if (cardEl) {
+      // 필터링 상태에 따라 노드를 제거할지 스타일만 바꿀지 결정
+      if ((view.filter === 'todo' && it.done) || (view.filter === 'done' && !it.done)) {
+        cardEl.remove();
+      } else {
+        cardEl.classList.toggle('is-done', it.done);
+        var checkBtn = cardEl.querySelector('.check');
+        checkBtn.setAttribute('aria-pressed', it.done ? 'true' : 'false');
+        checkBtn.setAttribute('aria-label', it.done ? '구매 완료 해제' : '구매 완료로 표시');
+
+        var info = cardEl.querySelector('.info');
+        var meta = info.querySelector('.meta');
+        if (it.done) {
+          if (!meta) {
+            meta = document.createElement('div');
+            meta.className = 'meta';
+            info.querySelector('.name').insertAdjacentElement('afterend', meta);
+          }
+          meta.insertAdjacentHTML('beforeend', '<span class="badge badge-done">구매 완료</span>');
+        } else {
+          if (meta) {
+            var badge = meta.querySelector('.badge-done');
+            if (badge) badge.remove();
+            if (!meta.innerHTML.trim()) meta.remove();
+          }
+        }
+      }
+    }
+
+    // 통계 수치만 따로 갱신
+    var total = items.length;
+    var doneCount = items.filter(function (i) { return i.done; }).length;
+    var todoCount = total - doneCount;
+    els.countTodo.textContent = todoCount;
+    els.countDone.textContent = doneCount;
+    els.headSub.textContent = total ? '담아둔 ' + total + '개 · 아직 살 것 ' + todoCount + '개' : '갖고 싶은 걸 모아두는 곳';
+    els.listCount.textContent = els.list.querySelectorAll('.card').length + '개';
+
+    checkEmptyList(total);
+
+    // 비동기로 저장 진행
+    await persist();
+    
     if (navigator.vibrate) { try { navigator.vibrate(8); } catch (e) {} }
     toast(it.done ? '구매 완료로 표시했어요' : '살 것 목록으로 되돌렸어요');
     scheduleSync();
@@ -1611,8 +1772,9 @@
     if (!items.length && !categories.length) { toast('내보낼 상품이 없어요'); return; }
     var payload = {
       app: 'wishlist',
-      version: 3,
+      version: 5,
       exportedAt: new Date().toISOString(),
+      settings: settings,
       categories: categories,
       items: items
     };
@@ -1658,10 +1820,16 @@
 
     var prevItems = items.slice();
     var prevCats = categories.slice();
+    var prevSettings = Object.assign({}, settings);
+
+    // 환경 설정도 가져오기 (있는 경우)
+    if (data && data.settings) {
+      settings.jpyRate = toNum(data.settings.jpyRate) || 900;
+      settings.updatedAt = data.settings.updatedAt || Date.now();
+    }
 
     if (choice === 'replace') {
       var nextCats = inCats ? inCats.slice() : categories.slice();
-      /* 지금 목록을 백업본으로 갈아끼우므로, 빠지는 상품은 지운 것으로 표시해 둔다(다음 동기화에서 되살아나지 않게) */
       items.forEach(function (it) { tombstones[it.id] = Date.now(); });
       var known = {};
       nextCats.forEach(function (c) { known[c.id] = true; });
@@ -1671,7 +1839,7 @@
         return copy;
       });
       categories = nextCats;
-      if (!persist()) { items = prevItems; categories = prevCats; return; }
+      if (!(await persist())) { items = prevItems; categories = prevCats; settings = prevSettings; return; }
       render();
       fillCategorySelect();
       toast(items.length + '개를 불러왔어요');
@@ -1711,7 +1879,8 @@
       items.push(copy);
       added++;
     });
-    if (!persist()) { items = prevItems; categories = prevCats; return; }
+    
+    if (!(await persist())) { items = prevItems; categories = prevCats; settings = prevSettings; return; }
     render();
     fillCategorySelect();
     toast(added ? added + '개를 더했어요' : '이미 같은 상품이 다 있어요');
@@ -1719,7 +1888,7 @@
   }
 
   /* ---------------- GitHub 비밀 창고(Gist) 동기화 ---------------- */
-  var SYNC_KEY = 'yeoldul.wishlist.sync.v1';      /* 토큰·Gist 정보는 이 키에만 저장한다 */
+  var SYNC_KEY = 'yeoldul.wishlist.sync.v1';
   var GIST_DESC = 'yeoldul-wishlist-sync';
   var GIST_FILE = 'wishlist-sync.json';
   var GH_API = 'https://api.github.com';
@@ -1774,7 +1943,7 @@
       localStorage.setItem(SYNC_KEY, JSON.stringify({
         token: sync.token, gistId: sync.gistId, login: sync.login, lastSyncAt: sync.lastSyncAt
       }));
-    } catch (e) { /* 저장 공간이 막혀 있어도 앱은 계속 동작한다 */ }
+    } catch (e) { /* 무시 */ }
   }
 
   /* --- GitHub API --- */
@@ -1815,9 +1984,10 @@
   function syncPayload() {
     return {
       app: 'wishlist',
-      version: 4,
+      version: 5,
       savedAt: new Date().toISOString(),
       updatedAt: Date.now(),
+      settings: settings,
       categories: categories.map(function (c) {
         return { id: c.id, name: c.name, updatedAt: c.updatedAt || 0 };
       }),
@@ -1869,12 +2039,11 @@
     var file = g && g.files ? g.files[GIST_FILE] : null;
     if (!file) return null;
     var text = file.content;
-    /* GitHub는 1MB가 넘는 파일 내용을 잘라서 준다. 그때는 원문 주소로 받아온다 */
     if ((file.truncated || !text) && file.raw_url) {
       try {
         var r = await fetch(file.raw_url, { cache: 'no-store' });
         if (r.ok) text = await r.text();
-      } catch (e) { /* 아래에서 걸러진다 */ }
+      } catch (e) { }
     }
     if (!text) return null;
     try { return JSON.parse(text); } catch (e) {
@@ -1882,7 +2051,7 @@
     }
   }
 
-  /* 원격 내용을 로컬에 합친다: id 기준 최신 updatedAt 우선, 삭제 표시는 삭제 시각으로 판단 */
+  /* 원격 내용을 로컬에 합친다 */
   function mergeRemote(remote) {
     if (!remote || typeof remote !== 'object') return false;
     var changed = false;
@@ -1896,7 +2065,12 @@
       if (!catTombstones[id] || rCatTombs[id] > catTombstones[id]) { catTombstones[id] = rCatTombs[id]; changed = true; }
     });
 
-    /* 분류: 로컬 것을 기준으로, 로컬에 없는 살아 있는 분류만 더한다 */
+    if (remote.settings && remote.settings.updatedAt > (settings.updatedAt || 0)) {
+       settings.jpyRate = toNum(remote.settings.jpyRate) || 900;
+       settings.updatedAt = remote.settings.updatedAt;
+       changed = true;
+    }
+
     var byId = {};
     categories.forEach(function (c) { byId[c.id] = c; });
     var rCats = Array.isArray(remote.categories) ? cleanCategories(remote.categories) : [];
@@ -1922,7 +2096,6 @@
     });
     if (categories.length !== beforeCats) changed = true;
 
-    /* 지워진 상품은 로컬에서도 지운다 */
     var beforeItems = items.length;
     items = items.filter(function (it) {
       var t = tombstones[it.id];
@@ -1930,7 +2103,6 @@
     });
     if (items.length !== beforeItems) changed = true;
 
-    /* 상품: 같은 id는 updatedAt이 더 최근인 쪽을 남긴다 */
     var map = {};
     items.forEach(function (it) { map[it.id] = it; });
     (Array.isArray(remote.items) ? remote.items : []).forEach(function (raw) {
@@ -1953,7 +2125,6 @@
       }
     });
 
-    /* 없는 분류를 가리키는 상품은 ‘미지정’으로 */
     var known = {};
     categories.forEach(function (c) { known[c.id] = true; });
     items.forEach(function (it) {
@@ -1979,7 +2150,7 @@
           var remote = await readRemote(id);
           var changed = remote ? mergeRemote(remote) : false;
           if (changed) {
-            if (persist()) {
+            if (await persist()) {
               render();
               if (!els.sheetLayer.classList.contains('show')) fillCategorySelect();
             }
@@ -1992,7 +2163,6 @@
           else if (!opts.silent) toast('동기화했어요');
           return true;
         } catch (inner) {
-          /* 창고가 GitHub에서 지워졌다면 다시 찾아 새로 만든다 */
           if (inner && inner.code === 'nf' && !retried) {
             retried = true;
             sync.gistId = '';
@@ -2054,7 +2224,7 @@
     saveSync();
     var ok = await syncNow({ silent: true });
     if (!ok) {
-      if (!sync.gistId) {      /* 창고를 만들지 못했으면 연결 자체를 되돌린다 */
+      if (!sync.gistId) {
         sync.token = prev.token;
         sync.gistId = prev.gistId;
         sync.login = prev.login;
@@ -2231,6 +2401,25 @@
     render();
   });
 
+  els.btnSettings.addEventListener('click', function () {
+    els.fExchangeRate.value = comma(settings.jpyRate || 900);
+    openLayer(els.settingsLayer);
+  });
+  els.settingsClose.addEventListener('click', function () { closeLayer(els.settingsLayer); });
+  els.settingsDone.addEventListener('click', async function () {
+    var val = toNum(els.fExchangeRate.value);
+    if (val <= 0) val = 900;
+    if (settings.jpyRate !== val) {
+      settings.jpyRate = val;
+      settings.updatedAt = Date.now();
+      await persist();
+      render();
+      toast('설정을 저장했어요');
+      scheduleSync();
+    }
+    closeLayer(els.settingsLayer);
+  });
+
   els.btnCatManage.addEventListener('click', openCatSheet);
   els.btnCatOpen.addEventListener('click', openCatSheet);
   els.catClose.addEventListener('click', closeCatSheet);
@@ -2289,6 +2478,12 @@
   els.sheetLayer.addEventListener('click', function (e) {
     if (e.target === els.sheetLayer) closeSheet();
   });
+  els.settingsLayer.addEventListener('click', function (e) {
+    if (e.target === els.settingsLayer) closeLayer(els.settingsLayer);
+  });
+  els.syncLayer.addEventListener('click', function (e) {
+    if (e.target === els.syncLayer) closeLayer(els.syncLayer);
+  });
   els.confirmLayer.addEventListener('click', function (e) {
     if (e.target === els.confirmLayer) dismissConfirm();
   });
@@ -2297,6 +2492,7 @@
     if (els.confirmLayer.classList.contains('show')) { dismissConfirm(); return; }
     if (els.syncLayer.classList.contains('show')) { closeLayer(els.syncLayer); return; }
     if (els.catLayer.classList.contains('show')) { closeCatSheet(); return; }
+    if (els.settingsLayer.classList.contains('show')) { closeLayer(els.settingsLayer); return; }
     if (els.sheetLayer.classList.contains('show')) closeSheet();
   });
 
@@ -2316,6 +2512,7 @@
   bindPriceInput(els.priceJpy);
   bindPriceInput(els.paidKrw);
   bindPriceInput(els.paidJpy);
+  bindPriceInput(els.fExchangeRate);
 
   els.urlToggle.addEventListener('click', function () {
     var open = els.urlMore.hidden;
@@ -2363,7 +2560,7 @@
     }
   });
 
-  els.form.addEventListener('submit', function (e) {
+  els.form.addEventListener('submit', async function (e) {
     e.preventDefault();
     var name = str(els.name.value);
     if (!name) {
@@ -2413,7 +2610,8 @@
     } else {
       items.unshift(item);
     }
-    if (!persist()) { items = prev; return; }
+    
+    if (!(await persist())) { items = prev; return; }
     render();
     closeSheet();
     toast(wasEdit ? '수정했어요' : '위시리스트에 담았어요');
@@ -2435,7 +2633,8 @@
     var prev = items.slice();
     tombstones[item.id] = Date.now();
     items = items.filter(function (i) { return i.id !== item.id; });
-    if (!persist()) { items = prev; return; }
+    
+    if (!(await persist())) { items = prev; return; }
     render();
     closeSheet();
     toast('삭제했어요');
@@ -2444,9 +2643,6 @@
 
   els.btnSync.addEventListener('click', openSyncSheet);
   els.syncClose.addEventListener('click', function () { closeLayer(els.syncLayer); });
-  els.syncLayer.addEventListener('click', function (e) {
-    if (e.target === els.syncLayer) closeLayer(els.syncLayer);
-  });
   els.btnSyncConnect.addEventListener('click', function () { connectWithToken(els.syncToken.value); });
   els.syncToken.addEventListener('input', function () {
     if (!sync.token && sync.state === 'error') setSyncState('idle', '');
@@ -2469,17 +2665,19 @@
   });
 
   /* ---------------- boot ---------------- */
-  readSync();
-  items = load();
-  fillCategorySelect('');
-  render();
-  setSyncState(sync.token ? 'synced' : 'idle', '');
-  if (sync.token) {
-    /* 앱을 열면 비밀 창고의 최신 내용을 먼저 확인한다 */
-    setTimeout(function () { syncNow({ silent: true }); }, 350);
+  async function boot() {
+    readSync();
+    await load();
+    fillCategorySelect('');
+    render();
+    setSyncState(sync.token ? 'synced' : 'idle', '');
+    if (sync.token) {
+      setTimeout(function () { syncNow({ silent: true }); }, 350);
+    }
   }
 
-  if ('serviceWorker' in navigator) { /* single-file app: no external service worker */ }
+  boot();
+
 })();
 </script>
 </body>
