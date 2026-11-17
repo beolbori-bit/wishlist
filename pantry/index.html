@@ -435,7 +435,7 @@
   /* ---------- 수량·단위 ---------- */
   .qty-pick{ display:flex; gap:8px; align-items:stretch; }
   .qty-pick .qty-in{ position:relative; flex:0 0 108px; }
-  .qty-pick .qty-in .input{ padding-right:34px; font-weight:800; font-variant-numeric:tabular-nums; text-align:left; }
+  .qty-pick .qty-in .input{ padding-right:14px; font-weight:800; font-variant-numeric:tabular-nums; text-align:left; }
   .qty-pick .qty-in .unit{ position:absolute; right:13px; top:50%; transform:translateY(-50%); font-size:13px; font-weight:700; color:var(--muted); pointer-events:none; }
   .qty-pick .unit-in{ flex:1; min-width:0; }
   .unit-chips{ display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
@@ -711,7 +711,6 @@
         <div class="qty-pick">
           <span class="qty-in">
             <input id="fQty" class="input" type="text" inputmode="numeric" value="1" maxlength="4" placeholder="1" aria-label="수량">
-            <span class="unit">개수</span>
           </span>
           <input id="fUnit" class="input unit-in" type="text" maxlength="8" placeholder="단위 (개, 팩, 봉, g…)" aria-label="단위">
         </div>
@@ -1780,7 +1779,7 @@
     updateStats();
 
     if (navigator.vibrate) { try { navigator.vibrate(8); } catch (e) {} }
-    if (next === 0) toast('‘' + it.name + '’ 다 썼어요 · 아래 + 로 되살릴 수 있어요');
+    if (next === 0) toast('‘' + it.name + '’ 다 썼어요 · + 로 되살릴 수 있어요');
     else if (prev === 0) toast('‘' + it.name + '’ 다시 보유 중으로 옮겼어요');
     scheduleSync();
   }
@@ -2581,7 +2580,7 @@
     if (!item) return;
     var ok = await askConfirm({
       title: '품목을 삭제할까요?',
-      message: '‘' + item.name + '’을(를) 목록에서 지워요.\n이미 다 쓴 품목이라면 지우지 말고 수량을 0으로 두면 기록이 남아요.',
+      message: '‘' + item.name + '’ 품목을 목록에서 지워요.\n이미 다 쓴 품목이라면 지우지 말고 수량을 0으로 두면 기록이 남아요.',
       actions: [
         { label: '삭제', value: true, variant: 'danger' },
         { label: '취소', value: false, variant: 'soft' }
