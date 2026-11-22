@@ -1,0 +1,2574 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>가보고 싶은 곳</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F0F7FF">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="가보고 싶은 곳">
+<meta name="format-detection" content="telephone=no">
+<meta name="description" content="가보고 싶은 곳을 지역·종류와 함께 모아두고, 저장한 링크로 바로 열어보고, 다녀온 곳은 체크해 두는 나만의 장소 목록">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23DBEAFE'/%3E%3Cpath d='M32 14.5c-6.8 0-12.3 5.5-12.3 12.3 0 8.7 12.3 22.7 12.3 22.7s12.3-14 12.3-22.7c0-6.8-5.5-12.3-12.3-12.3z' fill='none' stroke='%232563EB' stroke-width='3.4' stroke-linejoin='round'/%3E%3Ccircle cx='32' cy='26.6' r='4.5' fill='%232563EB'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%23DBEAFE'/%3E%3Cpath d='M90 41c-19 0-34.5 15.4-34.5 34.5 0 24.4 34.5 63.5 34.5 63.5s34.5-39.1 34.5-63.5C124.5 56.4 109 41 90 41z' fill='none' stroke='%232563EB' stroke-width='9.5' stroke-linejoin='round'/%3E%3Ccircle cx='90' cy='75' r='12.6' fill='%232563EB'/%3E%3C/svg%3E">
+<style>
+  *,*::before,*::after{ box-sizing:border-box; }
+  :root{
+    --bg:#F0F7FF;
+    --ink:#0F2444;
+    --ink-soft:#3C5578;
+    --muted:#7C90A9;
+    --line:#E4EEFB;
+    --line-strong:#CFE1F6;
+    --accent:#2563EB;
+    --accent-deep:#1D4ED8;
+    --accent-sky:#0284C7;
+    --accent-soft:#DBEAFE;
+    --visit:#0E9F6E;
+    --visit-soft:#E3F8F0;
+    --visit-line:#A7E3C9;
+    --danger:#C53030;
+    --danger-soft:#FDECEC;
+    --shadow:0 1px 2px rgba(15,36,68,.05), 0 14px 30px -22px rgba(15,36,68,.34);
+    --safe-b:env(safe-area-inset-bottom, 0px);
+  }
+  html{ -webkit-text-size-adjust:100%; }
+  body{
+    margin:0;
+    min-height:100vh;
+    font-family:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",system-ui,sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(900px 430px at 4% -10%, #E4F0FF 0%, rgba(228,240,255,0) 70%),
+      radial-gradient(780px 420px at 100% 0%, #E7F6FE 0%, rgba(231,246,254,0) 62%),
+      var(--bg);
+    background-attachment:fixed;
+    -webkit-tap-highlight-color:transparent;
+    overflow-x:hidden;
+  }
+  body.lock{ overflow:hidden; }
+  button{ font-family:inherit; }
+  button, a{ -webkit-tap-highlight-color:transparent; }
+  ::selection{ background:#CFE3FD; }
+  .wrap{ width:100%; max-width:620px; margin:0 auto; padding:0 18px; }
+
+  /* ---------- header ---------- */
+  .top{
+    position:sticky; top:0; z-index:30;
+    padding-top:env(safe-area-inset-top, 0px);
+    background:rgba(240,247,255,.92);
+    -webkit-backdrop-filter:blur(16px) saturate(150%);
+    backdrop-filter:blur(16px) saturate(150%);
+    border-bottom:1px solid rgba(228,238,251,.9);
+  }
+  .head-row{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; padding-top:14px; }
+  h1{ display:flex; align-items:center; gap:8px; margin:0; font-size:21px; font-weight:800; letter-spacing:-.035em; line-height:1.2; }
+  .logo{
+    display:grid; place-items:center; width:30px; height:30px; flex:none;
+    border-radius:10px; background:linear-gradient(150deg,#E6F0FF,#CFE1FD); color:var(--accent-deep);
+    box-shadow:inset 0 0 0 1px rgba(37,99,235,.12);
+  }
+  .logo svg{ width:17px; height:17px; }
+  .sub{ margin:3px 0 0; font-size:12.5px; font-weight:500; color:var(--muted); letter-spacing:-.01em; }
+  .tools{ display:flex; gap:6px; flex:none; }
+  .tool{
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+    width:42px; height:46px; padding:0;
+    border:1px solid var(--line-strong); border-radius:14px;
+    background:rgba(255,255,255,.88); color:var(--ink-soft);
+    font-size:9.5px; font-weight:700; letter-spacing:-.01em;
+    cursor:pointer; transition:transform .12s ease, background .15s ease;
+  }
+  .tool svg{ width:16px; height:16px; }
+  .tool:active{ transform:scale(.94); background:#fff; }
+
+  .search{
+    display:flex; align-items:center; gap:9px; height:48px; margin-top:13px; padding:0 13px;
+    background:#fff; border:1px solid var(--line); border-radius:16px;
+    box-shadow:0 1px 2px rgba(15,36,68,.04);
+    transition:border-color .15s ease, box-shadow .15s ease;
+  }
+  .search:focus-within{ border-color:#9CC0F2; box-shadow:0 0 0 3px rgba(37,99,235,.1); }
+  .search > svg{ width:18px; height:18px; color:#A9BBD2; flex:none; }
+  .search input{
+    flex:1; min-width:0; height:100%; border:0; outline:0; background:transparent;
+    font-family:inherit; font-size:16px; color:var(--ink); letter-spacing:-.01em;
+  }
+  .search input::placeholder{ color:#AFC0D6; }
+  .search input::-webkit-search-cancel-button{ display:none; }
+  .q-clear{
+    flex:none; width:26px; height:26px; border:0; border-radius:50%;
+    background:#EAF2FD; color:var(--ink-soft); font-size:15px; line-height:1;
+    display:grid; place-items:center; cursor:pointer; padding:0 0 1px;
+  }
+  .q-clear[hidden]{ display:none; }
+
+  .chips{ display:flex; gap:8px; overflow-x:auto; padding:11px 0 12px; scrollbar-width:none; }
+  .chips::-webkit-scrollbar{ display:none; }
+  .chip{
+    display:inline-flex; align-items:center; gap:6px; flex:none;
+    height:38px; padding:0 13px; border-radius:999px;
+    border:1px solid var(--line-strong); background:#fff; color:var(--ink-soft);
+    font-family:inherit; font-size:13.5px; font-weight:700; letter-spacing:-.02em; white-space:nowrap;
+    cursor:pointer; transition:background .16s ease, color .16s ease, border-color .16s ease, transform .12s ease;
+  }
+  .chip:active{ transform:scale(.96); }
+  .chip .num{
+    min-width:19px; padding:1px 5px; border-radius:999px;
+    background:#EDF4FD; color:var(--muted); font-size:11px; font-weight:700; text-align:center;
+  }
+  .chip.is-on{ background:var(--accent-deep); border-color:var(--accent-deep); color:#F3F8FF; }
+  .chip.is-on .num{ background:rgba(255,255,255,.2); color:#DDEBFF; }
+
+  /* ---------- filter panel ---------- */
+  .filters{ padding-top:12px; }
+  .catbar{ display:flex; align-items:flex-start; gap:6px; padding:0 0 10px; }
+  .catbar .chips{ flex:1; min-width:0; padding:0 4px 0 0; }
+  .chip.cat{ height:33px; padding:0 10px; font-size:12px; gap:5px; }
+  .chip.cat .num{ min-width:16px; padding:1px 4px; font-size:10px; }
+  .chip.cat.is-on{ background:var(--accent-soft); border-color:#B7D4FB; color:var(--accent-deep); }
+  .chip.cat.is-on .num{ background:#fff; color:var(--accent); }
+  .cat-manage{
+    position:relative; flex:none; display:inline-flex; align-items:center; justify-content:center;
+    width:35px; height:33px; padding:0; border-radius:10px;
+    border:1px dashed var(--line-strong); background:#F5FAFF; color:#8098B4;
+    font-family:inherit; cursor:pointer; transition:background .15s ease;
+  }
+  .cat-manage svg{ width:14px; height:14px; }
+  .cat-manage:active{ background:#EAF3FE; }
+
+  /* ---------- list ---------- */
+  main{ padding-bottom:calc(120px + var(--safe-b)); }
+  .listbar{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin:2px 2px 10px; }
+  .listbar .count{ font-size:12.5px; font-weight:700; color:var(--muted); }
+  .sortwrap{ position:relative; display:flex; align-items:center; }
+  .sortwrap select{
+    -webkit-appearance:none; appearance:none;
+    height:34px; padding:0 30px 0 12px; border-radius:10px;
+    border:1px solid var(--line-strong); background:#fff;
+    font-family:inherit; font-size:12.5px; font-weight:700; color:var(--ink-soft);
+    letter-spacing:-.02em; cursor:pointer; outline:0;
+  }
+  .sortwrap select:focus{ border-color:#9CC0F2; box-shadow:0 0 0 3px rgba(37,99,235,.1); }
+  .sortwrap > svg{ position:absolute; right:9px; width:13px; height:13px; color:var(--muted); pointer-events:none; }
+
+  .list{ display:grid; grid-template-columns:1fr; gap:10px; }
+
+  .card{
+    position:relative; background:#fff; border:1px solid #E9F1FC; border-radius:20px;
+    box-shadow:var(--shadow); transition:background .2s ease;
+    overflow:hidden;
+  }
+  .card.is-visit::before{
+    content:""; position:absolute; left:0; top:16px; bottom:16px; width:3px;
+    border-radius:0 3px 3px 0; background:#34D399;
+  }
+  .card.is-visit{ background:#FBFEFF; border-color:#E4F0F9; }
+  .card-body{
+    display:flex; padding:14px 14px 8px; border-radius:inherit; cursor:pointer;
+    outline-offset:2px; align-items:flex-start;
+  }
+  .card-body:focus-visible{ outline:2px solid #7FAEEC; }
+  .info{ flex:1; min-width:0; display:flex; flex-direction:column; gap:5px; padding:0; }
+  .name{
+    margin:0; font-size:15.5px; font-weight:700; line-height:1.35; letter-spacing:-.02em; color:var(--ink);
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; word-break:break-word;
+  }
+  .card.is-visit .name{ color:#546E8C; }
+  .meta{ display:flex; flex-wrap:wrap; gap:5px; }
+  .badge{
+    max-width:100%; padding:2px 7px; border-radius:6px;
+    background:var(--accent-soft); color:var(--accent-deep);
+    font-size:11px; font-weight:700; letter-spacing:-.01em;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .badge-kind{ background:#EDF4FD; color:#4A6D95; }
+  .badge-visit{ background:var(--visit-soft); color:#0B7A56; }
+  .memo{
+    margin:0; font-size:12.5px; line-height:1.5; color:var(--muted); letter-spacing:-.01em;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; word-break:break-word;
+  }
+  .card-bar{
+    display:flex; align-items:center; justify-content:space-between; gap:8px;
+    padding:2px 14px 13px;
+  }
+  .link-btn{
+    display:inline-flex; align-items:center; gap:6px; min-width:0; max-width:100%;
+    height:36px; padding:0 13px; border-radius:12px;
+    border:1px solid #DFEBFA; background:#F4F9FF; color:var(--accent);
+    font-family:inherit; font-size:12.5px; font-weight:800; letter-spacing:-.02em;
+    text-decoration:none; white-space:nowrap;
+  }
+  .link-btn svg{ width:14px; height:14px; flex:none; }
+  .link-btn .host{ min-width:0; overflow:hidden; text-overflow:ellipsis; }
+  .link-btn:active{ background:#EAF3FF; }
+  .link-btn.is-strong{
+    color:#fff; border-color:transparent;
+    background:linear-gradient(150deg,#3B82F6,#1D4ED8);
+    box-shadow:0 8px 18px -12px rgba(29,78,216,.85);
+  }
+  .link-btn.is-strong:active{ background:#1D4ED8; }
+  .visit-btn{
+    display:inline-flex; align-items:center; gap:6px; flex:none;
+    height:34px; padding:0 12px; border-radius:11px;
+    border:1px solid var(--line-strong); background:#fff; color:#5C7691;
+    font-family:inherit; font-size:12px; font-weight:800; letter-spacing:-.02em;
+    cursor:pointer; transition:background .16s ease, color .16s ease, border-color .16s ease, transform .1s ease;
+  }
+  .visit-btn svg{ width:15px; height:15px; }
+  .visit-btn:active{ transform:scale(.96); }
+  .visit-btn.is-on{ background:var(--visit-soft); border-color:var(--visit-line); color:#0B7A56; }
+
+  /* ---------- empty ---------- */
+  .empty{ text-align:center; padding:44px 16px 20px; }
+  .empty[hidden]{ display:none; }
+  .empty-art{
+    width:96px; height:96px; margin:0 auto 18px; border-radius:32px;
+    display:grid; place-items:center; color:#3E7FD4;
+    background:linear-gradient(150deg,#E9F3FF,#D7E7FB);
+    box-shadow:inset 0 0 0 1px rgba(62,127,212,.14), 0 18px 36px -26px rgba(29,78,216,.75);
+  }
+  .empty-art svg{ width:46px; height:46px; }
+  .empty h2{ margin:0 0 6px; font-size:17px; font-weight:800; letter-spacing:-.02em; color:var(--ink); }
+  .empty p{ margin:0 0 20px; font-size:13.5px; line-height:1.65; color:var(--muted); letter-spacing:-.01em; }
+  .empty .btn{ width:auto; height:48px; padding:0 22px; margin:0 auto; display:inline-flex; }
+
+  /* ---------- FAB ---------- */
+  .fab{
+    position:fixed; right:max(18px, calc(50% - 292px)); bottom:calc(20px + var(--safe-b)); z-index:25;
+    width:62px; height:62px; padding:0; border:0; border-radius:22px;
+    display:grid; place-items:center; color:#fff; cursor:pointer;
+    background:linear-gradient(150deg,#3B82F6,#1D4ED8);
+    box-shadow:0 16px 32px -12px rgba(29,78,216,.55), 0 2px 6px rgba(15,36,68,.14);
+    transition:transform .14s ease, box-shadow .14s ease;
+  }
+  .fab svg{ width:28px; height:28px; }
+  .fab:active{ transform:scale(.93); box-shadow:0 10px 22px -12px rgba(29,78,216,.5); }
+
+  .usage{
+    margin:26px auto 0; padding:0 4px; text-align:center;
+    font-size:11.5px; line-height:1.7; color:#A2B4CB; letter-spacing:-.01em;
+  }
+  .usage b{ font-weight:700; color:#7C90A9; }
+
+  /* ---------- buttons ---------- */
+  .btn{
+    width:100%; height:52px; padding:0 16px; border:0; border-radius:16px;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    font-family:inherit; font-size:15.5px; font-weight:700; letter-spacing:-.02em;
+    cursor:pointer; transition:transform .12s ease, filter .15s ease;
+  }
+  .btn:active{ transform:translateY(1px); }
+  .btn.primary{
+    color:#fff; background:linear-gradient(150deg,#3B82F6,#1D4ED8);
+    box-shadow:0 12px 24px -14px rgba(29,78,216,.8);
+  }
+  .btn.soft{ background:#EDF4FD; color:var(--ink); }
+  .btn.ghost{ background:transparent; color:var(--muted); }
+  .btn.danger{ background:var(--danger-soft); color:#A62D2D; }
+
+  /* ---------- sheet ---------- */
+  .layer{
+    position:fixed; inset:0; z-index:60;
+    display:flex; align-items:flex-end; justify-content:center;
+    background:rgba(15,36,68,.44);
+    -webkit-backdrop-filter:blur(3px); backdrop-filter:blur(3px);
+    opacity:0; visibility:hidden;
+    transition:opacity .22s ease, visibility .22s;
+  }
+  .layer.show{ opacity:1; visibility:visible; }
+  .layer.confirm{ align-items:center; z-index:80; padding:24px; }
+  .sheet{
+    width:100%; max-width:560px; max-height:92vh; max-height:92dvh;
+    padding:10px 20px calc(24px + var(--safe-b));
+    background:#fff; border-radius:26px 26px 0 0;
+    overflow-y:auto; overscroll-behavior:contain;
+    transform:translateY(103%);
+    transition:transform .3s cubic-bezier(.22,.9,.28,1);
+    box-shadow:0 -20px 50px -30px rgba(15,36,68,.4);
+  }
+  .layer.show .sheet{ transform:none; }
+  .handle{ width:40px; height:4px; margin:2px auto 12px; border-radius:999px; background:#E1EDFB; }
+  .sheet-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; }
+  .sheet-head h2{ margin:0; font-size:18px; font-weight:800; letter-spacing:-.03em; }
+  .icon-btn{
+    width:40px; height:40px; flex:none; padding:0; border:0; border-radius:12px;
+    background:#F1F7FE; color:var(--ink-soft); font-size:19px; line-height:1;
+    display:grid; place-items:center; cursor:pointer;
+  }
+  .icon-btn:active{ background:#E7F0FB; }
+
+  .field{ margin-bottom:15px; }
+  .field > label, .field-label{
+    display:block; margin:0 0 7px 2px;
+    font-size:12.5px; font-weight:700; color:var(--ink-soft); letter-spacing:-.01em;
+  }
+  .label-row{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .hint{ font-weight:600; color:#A4B8D0; font-size:11.5px; margin-left:3px; }
+  .req{ color:var(--accent); font-size:11px; font-weight:700; margin-left:3px; }
+  .input{
+    width:100%; height:50px; padding:0 14px;
+    border:1px solid var(--line-strong); border-radius:14px;
+    background:#FAFDFF; color:var(--ink);
+    font-family:inherit; font-size:16px; letter-spacing:-.01em;
+    transition:border-color .15s ease, background .15s ease, box-shadow .15s ease;
+  }
+  .input::placeholder{ color:#AFC0D6; }
+  .input:focus{ outline:0; border-color:#7FAEEC; background:#fff; box-shadow:0 0 0 3px rgba(37,99,235,.12); }
+  .input.err{ border-color:#D9695F; box-shadow:0 0 0 3px rgba(217,105,95,.12); }
+  textarea.input{ height:auto; min-height:84px; padding:12px 14px; line-height:1.5; resize:vertical; }
+  .error-msg{ display:none; margin:6px 0 0 2px; font-size:12px; font-weight:600; color:#BF463E; }
+  .error-msg.show{ display:block; }
+  .field-note{ margin:7px 0 0 2px; font-size:11.5px; line-height:1.55; color:#9CB0C8; letter-spacing:-.01em; }
+  .field-note b{ color:#6F87A3; }
+
+  .mini-btn{
+    height:40px; padding:0 10px; border:1px solid var(--line-strong); border-radius:11px;
+    display:flex; align-items:center; justify-content:center;
+    background:#fff; color:var(--ink-soft);
+    font-family:inherit; font-size:12.5px; font-weight:700; letter-spacing:-.02em;
+    cursor:pointer; white-space:nowrap;
+  }
+  .mini-btn:active{ background:#F6FBFF; }
+  .mini-btn svg{ width:14px; height:14px; margin-right:5px; }
+  .link-more{ display:flex; gap:8px; margin-top:8px; }
+  .link-more .mini-btn{ flex:1; min-width:0; }
+
+  /* ---------- 링크 강조 입력 ---------- */
+  .link-field{
+    padding:13px 13px 12px; margin-bottom:15px;
+    border:1px solid #DCEAFA; border-radius:17px;
+    background:linear-gradient(160deg,#F7FBFF,#EDF5FE);
+  }
+  .link-field > label, .link-field .label-row > label{ margin-left:1px; color:var(--accent-deep); }
+  .link-field .input{ background:#fff; }
+  .link-field .field-note{ margin-left:1px; }
+  .link-preview{
+    display:inline-flex; align-items:center; gap:3px;
+    font-size:11.5px; font-weight:800; color:var(--accent); letter-spacing:-.01em;
+    text-decoration:none; padding:3px 8px; border-radius:8px; background:#E4EFFD;
+  }
+  .link-preview[hidden]{ display:none; }
+  .link-preview:active{ background:#D7E7FC; }
+
+  .cat-pick{ display:flex; gap:6px; align-items:stretch; }
+  .sel{ position:relative; flex:1; min-width:0; display:block; }
+  .sel select{
+    width:100%; height:50px; padding:0 30px 0 13px;
+    border:1px solid var(--line-strong); border-radius:14px;
+    background:#FAFDFF; color:var(--ink);
+    font-family:inherit; font-size:16px; font-weight:600; letter-spacing:-.01em;
+    -webkit-appearance:none; appearance:none; outline:0;
+    transition:border-color .15s ease, background .15s ease, box-shadow .15s ease;
+  }
+  .sel select:focus{ border-color:#7FAEEC; background:#fff; box-shadow:0 0 0 3px rgba(37,99,235,.12); }
+  .sel > svg{ position:absolute; right:11px; top:50%; transform:translateY(-50%); width:14px; height:14px; color:var(--muted); pointer-events:none; }
+  .cat-mini{
+    flex:none; width:54px; padding:0; border:1px solid var(--line-strong); border-radius:14px;
+    background:#fff; color:var(--ink-soft);
+    font-family:inherit; font-size:11.5px; font-weight:700; letter-spacing:-.02em; cursor:pointer;
+  }
+  .cat-mini:active{ background:#F4FAFF; }
+
+  label.switch-row{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    margin:0; padding:11px 14px; border:1px solid var(--line-strong); border-radius:14px;
+    background:#FAFDFF; cursor:pointer;
+  }
+  .switch-text{ display:flex; flex-direction:column; gap:1px; }
+  .switch-text b{ font-size:14px; font-weight:700; color:var(--ink); letter-spacing:-.02em; }
+  .switch-text span{ font-size:11.5px; color:#9CB0C8; letter-spacing:-.01em; }
+  .switch-row input{ position:absolute; opacity:0; width:1px; height:1px; }
+  .switch-track{
+    position:relative; flex:none; width:46px; height:28px; border-radius:999px;
+    background:#DCE8F5; transition:background .18s ease;
+  }
+  .switch-track::after{
+    content:""; position:absolute; top:3px; left:3px; width:22px; height:22px; border-radius:50%;
+    background:#fff; box-shadow:0 1px 3px rgba(15,36,68,.22); transition:transform .18s ease;
+  }
+  .switch-row input:checked + .switch-track{ background:var(--visit); }
+  .switch-row input:checked + .switch-track::after{ transform:translateX(18px); }
+  .switch-row input:focus-visible + .switch-track{ box-shadow:0 0 0 3px rgba(37,99,235,.25); }
+
+  .sheet-actions{ margin-top:4px; }
+  .sheet-actions .btn + .btn{ margin-top:9px; }
+  .btn.delete{ background:#FCF1F1; color:#A6524B; font-size:14px; height:46px; }
+  #deleteBtn[hidden]{ display:none; }
+
+  /* ---------- dialog ---------- */
+  .dialog{
+    width:100%; max-width:360px; padding:22px 20px 16px;
+    background:#fff; border-radius:22px;
+    box-shadow:0 30px 60px -24px rgba(15,36,68,.5);
+    transform:scale(.96); opacity:0;
+    transition:transform .2s ease, opacity .2s ease;
+  }
+  .layer.show .dialog{ transform:none; opacity:1; }
+  .dialog h3{ margin:0 0 8px; font-size:17px; font-weight:800; letter-spacing:-.03em; }
+  .dialog p{ margin:0 0 18px; font-size:13.5px; line-height:1.6; color:var(--ink-soft); letter-spacing:-.01em; white-space:pre-line; word-break:break-word; }
+  .dialog .actions{ display:flex; flex-direction:column; gap:8px; }
+  .dialog .btn{ height:48px; font-size:14.5px; }
+
+  /* ---------- toast ---------- */
+  .toast{
+    position:fixed; left:50%; bottom:calc(96px + var(--safe-b)); z-index:90;
+    max-width:calc(100% - 48px); padding:11px 16px; border-radius:13px;
+    background:rgba(15,36,68,.95); color:#F3F8FF;
+    font-size:13px; font-weight:600; letter-spacing:-.01em; line-height:1.4;
+    box-shadow:0 16px 34px -18px rgba(15,36,68,.7);
+    opacity:0; transform:translate(-50%,10px); pointer-events:none;
+    transition:opacity .2s ease, transform .2s ease;
+  }
+  .toast.show{ opacity:1; transform:translate(-50%,0); }
+  .toast.error{ background:#9E3A33; }
+
+  /* ---------- 카테고리 관리 시트 ---------- */
+  #catLayer{ z-index:70; }
+  .cat-tabs{ display:flex; gap:6px; padding:4px; border-radius:14px; background:#F2F7FE; margin-bottom:14px; }
+  .cat-tab{
+    flex:1; height:40px; border:0; border-radius:11px; background:transparent; color:#6E86A1;
+    font-family:inherit; font-size:13.5px; font-weight:800; letter-spacing:-.02em; cursor:pointer;
+    transition:background .16s ease, color .16s ease, box-shadow .16s ease;
+  }
+  .cat-tab.is-on{ background:#fff; color:var(--accent-deep); box-shadow:0 1px 3px rgba(15,36,68,.1); }
+  .cat-list{ display:flex; flex-direction:column; gap:8px; }
+  .cat-row{ display:flex; align-items:center; gap:8px; }
+  .cat-row .input{ height:46px; font-size:15px; font-weight:600; }
+  .cat-row .cat-n{ flex:none; min-width:26px; text-align:right; font-size:11px; font-weight:700; color:#A6B9CE; letter-spacing:-.02em; }
+  .cat-del{
+    flex:none; width:40px; height:40px; padding:0; border:0; border-radius:11px;
+    background:#F1F7FE; color:#9DB3CB; font-size:14px; line-height:1;
+    display:grid; place-items:center; cursor:pointer; transition:background .15s ease, color .15s ease;
+  }
+  .cat-del:active{ background:var(--danger-soft); color:var(--danger); }
+  .cat-empty{ margin:2px 0 2px; font-size:12.5px; color:var(--muted); letter-spacing:-.01em; line-height:1.6; }
+  .cat-add{ display:flex; gap:8px; margin-top:12px; }
+  .cat-add .input{ flex:1; min-width:0; }
+  .cat-add-btn{
+    flex:none; width:64px; border:0; border-radius:14px;
+    background:var(--accent-deep); color:#F3F8FF;
+    font-family:inherit; font-size:13.5px; font-weight:700; letter-spacing:-.02em; cursor:pointer;
+  }
+  .cat-add-btn:active{ background:#1740B8; }
+  .cat-head{ display:flex; align-items:center; justify-content:space-between; margin:16px 2px 8px; }
+  .cat-head .t{ font-size:12.5px; font-weight:700; color:var(--ink-soft); }
+  .cat-head .n{ font-size:11.5px; font-weight:700; color:var(--muted); }
+
+  /* ---------- GitHub 비밀 창고 동기화 ---------- */
+  #btnSync{ position:relative; }
+  .sync-dot{
+    position:absolute; top:7px; right:8px; width:8px; height:8px; border-radius:50%;
+    background:#C7D6E6; box-shadow:0 0 0 2px rgba(255,255,255,.94);
+    transition:background .18s ease;
+  }
+  .sync-dot[data-state="synced"]{ background:var(--visit); }
+  .sync-dot[data-state="syncing"]{ background:#D08A2A; }
+  .sync-dot[data-state="error"]{ background:#C0453C; }
+
+  #syncLayer{ z-index:66; }
+  .sync-lead{ margin:0 0 18px; font-size:13px; line-height:1.68; color:var(--ink-soft); letter-spacing:-.01em; }
+  .sync-lead b{ font-weight:700; color:var(--ink); }
+  .sync-steps{ display:flex; flex-direction:column; gap:16px; }
+  .sync-step{ display:flex; gap:11px; align-items:flex-start; }
+  .sync-step > .n{
+    flex:none; display:grid; place-items:center; width:24px; height:24px; margin-top:1px;
+    border-radius:50%; background:var(--accent-soft); color:var(--accent-deep);
+    font-size:12px; font-weight:800;
+  }
+  .sync-step > .b{ flex:1; min-width:0; }
+  .sync-step h3{ margin:0 0 5px; font-size:14px; font-weight:800; letter-spacing:-.03em; }
+  .sync-step p{ margin:0; font-size:12.5px; line-height:1.65; color:var(--ink-soft); letter-spacing:-.01em; }
+  .sync-step p b{ font-weight:700; color:var(--ink); }
+  .sync-tip{ margin:8px 0 0; font-size:11.5px; line-height:1.6; color:#9DB1C8; letter-spacing:-.01em; }
+  .sync-btn-row{ display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+  .sync-btn-row .btn{ flex:1; min-width:150px; height:46px; font-size:14px; }
+  .sync-link{
+    display:flex; align-items:center; justify-content:center; width:100%;
+    height:48px; padding:0 16px; border-radius:14px;
+    border:1px solid var(--line-strong); background:#fff; color:var(--ink);
+    font-family:inherit; font-size:13.5px; font-weight:700; letter-spacing:-.02em;
+    text-decoration:none;
+  }
+  .sync-link:active{ background:#F4FAFF; }
+  .sync-conn{
+    display:flex; flex-direction:column; gap:1px; overflow:hidden;
+    border:1px solid var(--line); border-radius:14px; background:#F7FBFF;
+  }
+  .sync-conn-row{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding:12px 14px; background:#fff;
+  }
+  .sync-conn-k{ flex:none; font-size:12px; font-weight:700; color:var(--muted); letter-spacing:-.01em; }
+  .sync-conn-v{
+    min-width:0; font-size:12.5px; font-weight:700; color:var(--ink); letter-spacing:-.01em;
+    text-align:right; text-decoration:none; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  a.sync-conn-v{ color:var(--accent); text-decoration:underline; text-underline-offset:3px; }
+  .sync-status{
+    margin:12px 0 0; padding:11px 13px; border-radius:12px;
+    background:var(--accent-soft); color:#1C4699;
+    font-size:12px; font-weight:600; line-height:1.55; letter-spacing:-.01em;
+    word-break:break-word;
+  }
+  .sync-status.is-error{ background:#FCEEEE; color:#A6423A; }
+  .sync-status[hidden]{ display:none; }
+  #syncOn .sheet-actions{ margin-top:14px; }
+
+  @media (max-width:639px){
+    .chips{
+      -webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 18px), rgba(0,0,0,.12));
+      mask-image:linear-gradient(90deg,#000 calc(100% - 18px), rgba(0,0,0,.12));
+    }
+  }
+  @media (max-width:390px){
+    .tools{ gap:4px; }
+    .tool{ width:38px; height:42px; font-size:9px; border-radius:12px; }
+    h1{ font-size:19px; }
+    .visit-btn{ padding:0 10px; }
+  }
+
+  @media (min-width:640px){
+    .list{ grid-template-columns:1fr 1fr; }
+    .layer{ align-items:center; padding:24px; }
+    .sheet{ border-radius:24px; max-height:88vh; padding-bottom:24px; transform:translateY(14px) scale(.98); }
+    .layer.show .sheet{ transform:none; }
+    .chips{ flex-wrap:wrap; overflow:visible; }
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{ transition-duration:.01ms !important; animation-duration:.01ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div class="head-row">
+      <div>
+        <h1>
+          <span class="logo" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" stroke-linecap="round"><path d="M12 21s7-6.4 7-11a7 7 0 1 0-14 0c0 4.6 7 11 7 11z"/><circle cx="12" cy="10" r="2.6"/></svg>
+          </span>
+          가보고 싶은 곳
+        </h1>
+        <p class="sub" id="headSub">다음에 갈 곳을 하나씩 모아두세요</p>
+      </div>
+      <div class="tools">
+        <button type="button" class="tool" id="btnExport" aria-label="장소 목록을 JSON 파일로 백업">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v10"/><path d="M8 10.5l4 4 4-4"/><path d="M5 19h14"/></svg>
+          <span>백업</span>
+        </button>
+        <button type="button" class="tool" id="btnImport" aria-label="백업한 JSON 파일 불러오기">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V5"/><path d="M8 8.5l4-4 4 4"/><path d="M5 19h14"/></svg>
+          <span>복원</span>
+        </button>
+        <button type="button" class="tool" id="btnSync" aria-label="동기화 설정 열기" title="GitHub 비밀 창고에 동기화">
+          <span class="sync-dot" id="syncDot" data-state="idle" aria-hidden="true"></span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11.5a8 8 0 0 0-13.7-5.1L4 8.6"/><path d="M4 4.5v4.1h4.1"/><path d="M4 12.5a8 8 0 0 0 13.7 5.1L20 15.4"/><path d="M20 19.5v-4.1h-4.1"/></svg>
+          <span>동기화</span>
+        </button>
+        <input type="file" id="importInput" accept="application/json,.json" hidden>
+      </div>
+    </div>
+
+    <div class="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg>
+      <input id="searchInput" type="search" placeholder="장소명이나 가고 싶은 이유로 찾기" autocomplete="off" enterkeyhint="search" aria-label="장소 검색">
+      <button type="button" class="q-clear" id="searchClear" aria-label="검색어 지우기" hidden>✕</button>
+    </div>
+
+    <div class="chips" id="statusChips" role="tablist" aria-label="방문 상태 필터">
+      <button type="button" class="chip is-on" data-filter="all" role="tab" aria-selected="true">전체 <span class="num" data-count="all">0</span></button>
+      <button type="button" class="chip" data-filter="want" role="tab" aria-selected="false">가고 싶어요 <span class="num" data-count="want">0</span></button>
+      <button type="button" class="chip" data-filter="done" role="tab" aria-selected="false">다녀왔어요 <span class="num" data-count="done">0</span></button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="filters">
+    <div class="catbar">
+      <div class="chips" id="regionChips" role="tablist" aria-label="지역 필터"></div>
+      <button type="button" class="cat-manage" id="btnRegionManage" aria-label="지역 관리" title="지역 관리">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h9"/></svg>
+      </button>
+    </div>
+    <div class="catbar">
+      <div class="chips" id="kindChips" role="tablist" aria-label="종류 필터"></div>
+      <button type="button" class="cat-manage" id="btnKindManage" aria-label="종류 관리" title="종류 관리">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h9"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="listbar">
+    <span class="count" id="listCount">0곳</span>
+    <label class="sortwrap">
+      <select id="sortSelect" aria-label="정렬 방식">
+        <option value="newest">최근 담은 순</option>
+        <option value="name">이름순</option>
+        <option value="visit">못 가본 곳 먼저</option>
+      </select>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+    </label>
+  </div>
+
+  <div class="list" id="list"></div>
+
+  <div class="empty" id="empty" hidden>
+    <div class="empty-art" aria-hidden="true">
+      <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round">
+        <path d="M24 41s13-12 13-21a13 13 0 1 0-26 0c0 9 13 21 13 21z"/>
+        <circle cx="24" cy="19.5" r="4.8"/>
+      </svg>
+    </div>
+    <h2 id="emptyTitle">아직 가보고 싶은 곳이 없어요</h2>
+    <p id="emptyText">가고 싶은 카페, 팝업, 여행지 하나씩<br>담아두면 다음 약속이 쉬워져요.</p>
+    <button type="button" class="btn soft" id="emptyBtn">+ 첫 장소 담기</button>
+  </div>
+
+  <p class="usage" id="usage"></p>
+</main>
+
+<button type="button" class="fab" id="fab" aria-label="장소 추가">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+</button>
+
+<!-- 추가 / 수정 시트 -->
+<div class="layer" id="sheetLayer" aria-hidden="true">
+  <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <div class="handle" aria-hidden="true"></div>
+    <div class="sheet-head">
+      <h2 id="sheetTitle">가고 싶은 곳 담기</h2>
+      <button type="button" class="icon-btn" id="sheetClose" aria-label="닫기">✕</button>
+    </div>
+
+    <form id="placeForm" novalidate autocomplete="off">
+      <div class="field">
+        <label for="fName">장소명 <span class="req">필수</span></label>
+        <input id="fName" class="input" type="text" maxlength="80" placeholder="예: 텐진 파르코, 고쿠라 성" enterkeyhint="next">
+        <p class="error-msg" id="nameError">장소명을 적어 주세요</p>
+      </div>
+
+      <div class="field link-field">
+        <div class="label-row">
+          <label for="fLink">링크 <span class="hint">선택</span></label>
+          <a class="link-preview" id="linkPreview" href="#" target="_blank" rel="noopener noreferrer" hidden>열어보기 ↗</a>
+        </div>
+        <input id="fLink" class="input" type="url" inputmode="url" maxlength="500" placeholder="https://... 지도·인스타·블로그 주소" autocomplete="off" enterkeyhint="next">
+        <div class="link-more">
+          <button type="button" class="mini-btn" id="btnMapNaver">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.4 7-11a7 7 0 1 0-14 0c0 4.6 7 11 7 11z"/><circle cx="12" cy="10" r="2.4"/></svg>
+            네이버지도 검색
+          </button>
+          <button type="button" class="mini-btn" id="btnMapGoogle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.4 7-11a7 7 0 1 0-14 0c0 4.6 7 11 7 11z"/><circle cx="12" cy="10" r="2.4"/></svg>
+            구글맵 검색
+          </button>
+        </div>
+        <p class="field-note">장소명을 적고 지도 버튼을 누르면 검색 주소가 채워져요. 카드에서 바로 열 수 있어요.</p>
+      </div>
+
+      <div class="field">
+        <label for="fRegion">지역</label>
+        <div class="cat-pick">
+          <span class="sel">
+            <select id="fRegion" aria-label="지역 선택"></select>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+          </span>
+          <button type="button" class="cat-mini" id="btnRegionOpen" aria-label="지역 관리 열기">관리</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="fKind">종류</label>
+        <div class="cat-pick">
+          <span class="sel">
+            <select id="fKind" aria-label="종류 선택"></select>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+          </span>
+          <button type="button" class="cat-mini" id="btnKindOpen" aria-label="종류 관리 열기">관리</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="fReason">가고 싶은 이유 <span class="hint">선택</span></label>
+        <textarea id="fReason" class="input" maxlength="400" rows="3" placeholder="여기서 꼭 먹어보고 싶은 것, 가고 싶은 이유를 적어두세요"></textarea>
+      </div>
+
+      <div class="field">
+        <label class="switch-row">
+          <span class="switch-text">
+            <b>다녀왔어요</b>
+            <span>체크하면 목록에서 ‘다녀온 곳’으로 표시돼요</span>
+          </span>
+          <input type="checkbox" id="fVisited">
+          <span class="switch-track" aria-hidden="true"></span>
+        </label>
+      </div>
+
+      <div class="sheet-actions">
+        <button type="submit" class="btn primary" id="saveBtn">목록에 담기</button>
+        <button type="button" class="btn delete" id="deleteBtn" hidden>이 장소 삭제</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- 지역·종류 관리 시트 -->
+<div class="layer" id="catLayer" aria-hidden="true">
+  <div class="sheet" id="catSheet" role="dialog" aria-modal="true" aria-labelledby="catTitle">
+    <div class="handle" aria-hidden="true"></div>
+    <div class="sheet-head">
+      <h2 id="catTitle">분류 관리</h2>
+      <button type="button" class="icon-btn" id="catClose" aria-label="닫기">✕</button>
+    </div>
+
+    <div class="cat-tabs" id="catTabs" role="tablist" aria-label="지역·종류 선택">
+      <button type="button" class="cat-tab is-on" data-which="regions" role="tab" aria-selected="true">지역</button>
+      <button type="button" class="cat-tab" data-which="kinds" role="tab" aria-selected="false">종류</button>
+    </div>
+    <p class="field-note" id="catNote" style="margin:-4px 0 14px">이름을 고치면 그 분류의 장소에 바로 반영돼요. 분류를 지우면 그 안의 장소는 ‘미지정’으로 옮겨져요.</p>
+
+    <div class="cat-head">
+      <span class="t" id="catHeadTitle">내 지역</span>
+      <span class="n" id="catCount">0개</span>
+    </div>
+    <div class="cat-list" id="catList"></div>
+
+    <div class="cat-add">
+      <input id="newCatName" class="input" type="text" maxlength="20" placeholder="새 지역 이름 (예: 벳푸)" autocomplete="off" enterkeyhint="done" aria-label="새 분류 이름">
+      <button type="button" class="cat-add-btn" id="btnAddCat">추가</button>
+    </div>
+
+    <div class="sheet-actions" style="margin-top:18px">
+      <button type="button" class="btn primary" id="catDone">완료</button>
+    </div>
+  </div>
+</div>
+
+<!-- 동기화 시트 -->
+<div class="layer" id="syncLayer" aria-hidden="true">
+  <div class="sheet" id="syncSheet" role="dialog" aria-modal="true" aria-labelledby="syncTitle">
+    <div class="handle" aria-hidden="true"></div>
+    <div class="sheet-head">
+      <h2 id="syncTitle">비밀 창고 동기화</h2>
+      <button type="button" class="icon-btn" id="syncClose" aria-label="닫기">✕</button>
+    </div>
+    <p class="sync-lead">GitHub의 <b>비밀 창고(Secret Gist)</b>에 내 ‘가보고 싶은 곳’ 목록을 숨겨서 보관해요. 한 번 연결해 두면 장소를 담거나 다녀온 곳을 체크할 때마다 저절로 저장되고, 다른 기기에서도 그대로 이어서 쓸 수 있어요.</p>
+
+    <div id="syncOff">
+      <div class="sync-steps">
+        <div class="sync-step">
+          <span class="n" aria-hidden="true">1</span>
+          <div class="b">
+            <h3>내 비밀 창고 열쇠 만들기</h3>
+            <p>아래 버튼을 누르면 GitHub의 열쇠 만들기 페이지가 열려요. <b>gist</b> 하나만 체크된 채로 열리니, 그대로 페이지 맨 아래 <b>Generate token</b>만 누르면 돼요.</p>
+            <div class="sync-btn-row">
+              <a class="sync-link" id="syncTokenLink" href="https://github.com/settings/tokens/new?scopes=gist&amp;description=Places+Sync" target="_blank" rel="noopener noreferrer">GitHub에서 열쇠 만들기 ↗</a>
+            </div>
+            <p class="sync-tip">GitHub에 로그인되어 있어야 해요. 만든 열쇠는 그 화면에서 한 번만 보여주니 복사해 두세요.</p>
+          </div>
+        </div>
+        <div class="sync-step">
+          <span class="n" aria-hidden="true">2</span>
+          <div class="b">
+            <h3>열쇠 붙여넣기</h3>
+            <p>복사한 열쇠(<b>ghp_…</b>)를 아래에 붙여넣고 <b>연결 및 동기화</b>를 눌러 주세요. 위시리스트나 식료품 앱에 쓰던 열쇠를 그대로 넣으셔도, 장소 전용 비밀 창고로 따로 보관돼요.</p>
+            <div class="field" style="margin:10px 0 0">
+              <input id="syncToken" class="input" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="ghp_… 또는 github_pat_…" aria-label="GitHub 개인 액세스 토큰(열쇠)">
+            </div>
+            <div class="sync-btn-row">
+              <button type="button" class="btn primary" id="btnSyncConnect">연결 및 동기화</button>
+            </div>
+            <p class="sync-tip">열쇠는 이 브라우저의 <b>이 기기</b>에만 저장되고, GitHub 말고 다른 곳으로는 보내지 않아요. 장소 목록은 남에게 보이지 않는 비밀 창고에 들어가요.</p>
+          </div>
+        </div>
+        <div class="sync-step">
+          <span class="n" aria-hidden="true">3</span>
+          <div class="b">
+            <h3>다른 기기에서도 열쇠 하나로</h3>
+            <p>새 기기에서도 같은 열쇠를 붙여넣으면 내 장소 창고를 <b>자동으로 찾아</b> 그대로 이어서 써요. 위시리스트·식료품 창고와는 섞이지 않아요.</p>
+          </div>
+        </div>
+      </div>
+      <p class="sync-status is-error" id="syncOffStatus" role="alert" hidden></p>
+    </div>
+
+    <div id="syncOn" hidden>
+      <div class="sync-conn">
+        <div class="sync-conn-row">
+          <span class="sync-conn-k">GitHub 계정</span>
+          <span class="sync-conn-v" id="syncLogin">—</span>
+        </div>
+        <div class="sync-conn-row">
+          <span class="sync-conn-k">마지막 동기화</span>
+          <span class="sync-conn-v" id="syncLast">아직 없음</span>
+        </div>
+        <div class="sync-conn-row">
+          <span class="sync-conn-k">비밀 창고</span>
+          <a class="sync-conn-v" id="syncGistLink" href="https://gist.github.com/" target="_blank" rel="noopener noreferrer">비밀 창고 열기 ↗</a>
+        </div>
+      </div>
+      <p class="sync-status" id="syncStatus" role="status" aria-live="polite" hidden></p>
+      <div class="sheet-actions">
+        <button type="button" class="btn primary" id="btnSyncNow">지금 동기화</button>
+        <button type="button" class="btn soft" id="btnSyncOff">연결 끊기</button>
+      </div>
+      <p class="sync-tip">연결을 끊어도 이 기기에 적어둔 장소는 그대로 남고, 비밀 창고에 보관된 내용도 지워지지 않아요.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 확인 대화상자 -->
+<div class="layer confirm" id="confirmLayer" aria-hidden="true">
+  <div class="dialog" role="alertdialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmMessage">
+    <h3 id="confirmTitle">확인</h3>
+    <p id="confirmMessage"></p>
+    <div class="actions" id="confirmActions"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ================= 식별자 (위시리스트·식료품 앱과 완전히 분리) ================= */
+  var APP = 'places';
+  var STORE_KEY = 'yeoldul.places.v1';
+  var SYNC_KEY = 'yeoldul.places.sync.v1';
+  var DB_NAME = 'PlacesAppDB';
+  var DB_STORE = 'state';
+  var DB_KEY = 'places_data';
+  var GIST_DESC = 'yeoldul-places-sync';
+  var GIST_FILE = 'places-sync.json';
+  var GH_API = 'https://api.github.com';
+  var MAX_CATS = 24;
+  var MAX_TOMBS = 400;
+  var DATA_VERSION = 1;
+
+  var CATS = {
+    regions: { label: '지역', max: MAX_CATS, tomb: 'deletedRegionIds' },
+    kinds: { label: '종류', max: MAX_CATS, tomb: 'deletedKindIds' }
+  };
+  var CAT_ORDER = ['regions', 'kinds'];
+
+  var $ = function (sel, root) { return (root || document).querySelector(sel); };
+
+  var els = {
+    headSub: $('#headSub'),
+    search: $('#searchInput'),
+    searchClear: $('#searchClear'),
+    sort: $('#sortSelect'),
+    list: $('#list'),
+    empty: $('#empty'),
+    emptyTitle: $('#emptyTitle'),
+    emptyText: $('#emptyText'),
+    emptyBtn: $('#emptyBtn'),
+    listCount: $('#listCount'),
+    statusChips: $('#statusChips'),
+    countAll: $('[data-count="all"]'),
+    countWant: $('[data-count="want"]'),
+    countDone: $('[data-count="done"]'),
+    regionChips: $('#regionChips'),
+    kindChips: $('#kindChips'),
+    btnRegionManage: $('#btnRegionManage'),
+    btnKindManage: $('#btnKindManage'),
+    usage: $('#usage'),
+    fab: $('#fab'),
+    sheetLayer: $('#sheetLayer'),
+    sheet: $('#sheet'),
+    sheetTitle: $('#sheetTitle'),
+    sheetClose: $('#sheetClose'),
+    form: $('#placeForm'),
+    name: $('#fName'),
+    nameError: $('#nameError'),
+    region: $('#fRegion'),
+    kind: $('#fKind'),
+    btnRegionOpen: $('#btnRegionOpen'),
+    btnKindOpen: $('#btnKindOpen'),
+    reason: $('#fReason'),
+    link: $('#fLink'),
+    linkPreview: $('#linkPreview'),
+    btnMapGoogle: $('#btnMapGoogle'),
+    btnMapNaver: $('#btnMapNaver'),
+    visited: $('#fVisited'),
+    saveBtn: $('#saveBtn'),
+    deleteBtn: $('#deleteBtn'),
+    btnExport: $('#btnExport'),
+    btnImport: $('#btnImport'),
+    importInput: $('#importInput'),
+    btnSync: $('#btnSync'),
+    syncDot: $('#syncDot'),
+    syncLayer: $('#syncLayer'),
+    syncClose: $('#syncClose'),
+    syncOff: $('#syncOff'),
+    syncOn: $('#syncOn'),
+    syncOffStatus: $('#syncOffStatus'),
+    syncToken: $('#syncToken'),
+    btnSyncConnect: $('#btnSyncConnect'),
+    syncLogin: $('#syncLogin'),
+    syncLast: $('#syncLast'),
+    syncGistLink: $('#syncGistLink'),
+    syncStatus: $('#syncStatus'),
+    btnSyncNow: $('#btnSyncNow'),
+    btnSyncOff: $('#btnSyncOff'),
+    catLayer: $('#catLayer'),
+    catTabs: $('#catTabs'),
+    catList: $('#catList'),
+    catCount: $('#catCount'),
+    catHeadTitle: $('#catHeadTitle'),
+    catNote: $('#catNote'),
+    catClose: $('#catClose'),
+    catDone: $('#catDone'),
+    newCatName: $('#newCatName'),
+    btnAddCat: $('#btnAddCat'),
+    confirmLayer: $('#confirmLayer'),
+    confirmTitle: $('#confirmTitle'),
+    confirmMessage: $('#confirmMessage'),
+    confirmActions: $('#confirmActions'),
+    toast: $('#toast')
+  };
+
+  /* ---------------- IndexedDB Wrapper ---------------- */
+  var idb = {
+    dbName: DB_NAME,
+    version: 1,
+    store: DB_STORE,
+    _db: null,
+    init: function () {
+      if (this._db) return Promise.resolve(this._db);
+      return new Promise(function (resolve, reject) {
+        var req = indexedDB.open(idb.dbName, idb.version);
+        req.onupgradeneeded = function (e) {
+          var db = e.target.result;
+          if (!db.objectStoreNames || !db.objectStoreNames.contains(idb.store)) db.createObjectStore(idb.store);
+        };
+        req.onsuccess = function (e) { idb._db = e.target.result; resolve(idb._db); };
+        req.onerror = function (e) { reject(e); };
+      });
+    },
+    get: function (key) {
+      return this.init().then(function (db) {
+        return new Promise(function (resolve, reject) {
+          var tx = db.transaction(idb.store, 'readonly');
+          var req = tx.objectStore(idb.store).get(key);
+          req.onsuccess = function () { resolve(req.result); };
+          req.onerror = function (e) { reject(e); };
+        });
+      });
+    },
+    set: function (key, val) {
+      return this.init().then(function (db) {
+        return new Promise(function (resolve, reject) {
+          var tx = db.transaction(idb.store, 'readwrite');
+          var req = tx.objectStore(idb.store).put(val, key);
+          req.onsuccess = function () { resolve(); };
+          req.onerror = function (e) { reject(e); };
+        });
+      });
+    }
+  };
+
+  var items = [];
+  var regions = [];
+  var kinds = [];
+  var tombs = { items: {}, regions: {}, kinds: {} };
+  var view = { q: '', filter: 'all', region: 'all', kind: 'all', sort: 'newest' };
+  var editingId = null;
+  var catMode = 'regions';
+  var confirmResolve = null;
+  var lastFocus = null;
+
+  /* ---------------- helpers ---------------- */
+  function uid() {
+    if (window.crypto && typeof crypto.randomUUID === 'function') return crypto.randomUUID();
+    return 'pl' + Date.now().toString(36) + Math.random().toString(36).slice(2, 9);
+  }
+  function str(v) { return v == null ? '' : String(v).trim(); }
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function safeUrl(v) {
+    var s = str(v);
+    if (!s) return '';
+    if (!/^[a-z][a-z0-9+.\-]*:/i.test(s)) s = 'https://' + s;
+    try {
+      var u = new URL(s);
+      if (u.protocol !== 'http:' && u.protocol !== 'https:') return '';
+      return u.href;
+    } catch (e) { return ''; }
+  }
+  function isMapUrl(u) {
+    return /(^|\/\/)([a-z0-9-]+\.)*(google\.[a-z.]+\/maps|maps\.google\.|map\.naver\.com|m\.place\.naver\.com|naver\.com\/p\/search)/i.test(u);
+  }
+  function searchQuery(it) {
+    var q = str(it.name);
+    var r = it.regionId ? catName('regions', it.regionId) : '';
+    if (r) q += ' ' + r;
+    return q || '가고 싶은 곳';
+  }
+  function mapSearchUrl(it) {
+    return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(searchQuery(it));
+  }
+  function naverSearchUrl(q) {
+    return 'https://map.naver.com/p/search/' + encodeURIComponent(q || '가고 싶은 곳');
+  }
+  function normName(s) { return str(s).toLowerCase().replace(/\s+/g, ' '); }
+
+  /* ---------------- 분류(지역·종류) ---------------- */
+  function catList(which) { return which === 'kinds' ? kinds : regions; }
+  function setCatList(which, arr) { if (which === 'kinds') kinds = arr; else regions = arr; }
+  function itemCatKey(which) { return which === 'kinds' ? 'kindId' : 'regionId'; }
+
+  function defaultCats(which) {
+    var seed = which === 'kinds'
+      ? [['kd-food', '맛집·카페'], ['kd-shop', '쇼핑'], ['kd-sight', '관광·명소'], ['kd-stay', '숙소'], ['kd-popup', '전시·팝업']]
+      : [['rg-kitakyushu', '기타큐슈'], ['rg-fukuoka', '후쿠오카'], ['rg-seoul', '서울'], ['rg-korea', '국내'], ['rg-abroad', '해외']];
+    return seed.map(function (p) { return { id: p[0], name: p[1], updatedAt: 0 }; });
+  }
+  function normalizeCategory(raw, i) {
+    if (!raw || typeof raw !== 'object') return null;
+    var name = str(raw.name).replace(/\s+/g, ' ').slice(0, 20);
+    if (!name) return null;
+    return {
+      id: str(raw.id) || ('cat-' + (i || 0) + '-' + uid().slice(0, 6)),
+      name: name,
+      updatedAt: Number(raw.updatedAt) || 0
+    };
+  }
+  function cleanCategories(list) {
+    var seen = {}, out = [];
+    (Array.isArray(list) ? list : []).forEach(function (raw, i) {
+      var c = normalizeCategory(raw, i);
+      if (!c || seen[c.id]) return;
+      seen[c.id] = true;
+      out.push(c);
+    });
+    return out.slice(0, MAX_CATS);
+  }
+  function catName(which, id) {
+    var arr = catList(which);
+    for (var i = 0; i < arr.length; i++) if (arr[i].id === id) return arr[i].name;
+    return '';
+  }
+  function catByName(which, name) {
+    var k = normName(name), arr = catList(which);
+    for (var i = 0; i < arr.length; i++) if (normName(arr[i].name) === k) return arr[i];
+    return null;
+  }
+  function catCountOf(which, id) {
+    var key = itemCatKey(which), n = 0;
+    items.forEach(function (it) { if (it[key] === id) n++; });
+    return n;
+  }
+
+  /* ---------------- items ---------------- */
+  function normalize(raw) {
+    if (!raw || typeof raw !== 'object') return null;
+    var name = str(raw.name).slice(0, 80);
+    if (!name) return null;
+    var linkRaw = typeof raw.link === 'string' ? raw.link : (typeof raw.url === 'string' ? raw.url : '');
+    var createdAt = Number(raw.createdAt);
+    if (!isFinite(createdAt) || createdAt <= 0) createdAt = Date.now();
+    var visited = raw.visited === true || raw.visited === 1 || raw.visited === 'true';
+    return {
+      id: str(raw.id) || uid(),
+      name: name,
+      regionId: str(raw.regionId).slice(0, 80),
+      kindId: str(raw.kindId).slice(0, 80),
+      reason: str(raw.reason != null ? raw.reason : raw.memo).slice(0, 400),
+      link: safeUrl(linkRaw),
+      visited: visited,
+      visitedAt: visited ? (Number(raw.visitedAt) || 0) : 0,
+      createdAt: createdAt,
+      updatedAt: Number(raw.updatedAt) || createdAt
+    };
+  }
+  function byId(id) {
+    for (var i = 0; i < items.length; i++) if (items[i].id === id) return items[i];
+    return null;
+  }
+
+  /* ---------------- storage ---------------- */
+  function buildPayload() {
+    return {
+      app: APP,
+      version: DATA_VERSION,
+      savedAt: new Date().toISOString(),
+      regions: regions,
+      kinds: kinds,
+      items: items,
+      deletedIds: tombs.items,
+      deletedRegionIds: tombs.regions,
+      deletedKindIds: tombs.kinds
+    };
+  }
+
+  function applyData(data) {
+    var isObj = !!data && !Array.isArray(data);
+    var arr = Array.isArray(data) ? data : (isObj && Array.isArray(data.items) ? data.items : []);
+    tombs.items = cleanTombs(isObj ? data.deletedIds : null);
+    tombs.regions = cleanTombs(isObj ? data.deletedRegionIds : null);
+    tombs.kinds = cleanTombs(isObj ? data.deletedKindIds : null);
+
+    var inRegions = isObj && Array.isArray(data.regions) ? cleanCategories(data.regions) : null;
+    var inKinds = isObj && Array.isArray(data.kinds) ? cleanCategories(data.kinds) : null;
+    regions = inRegions && inRegions.length ? inRegions : defaultCats('regions');
+    kinds = inKinds && inKinds.length ? inKinds : defaultCats('kinds');
+
+    var knownR = {}, knownK = {};
+    regions.forEach(function (c) { knownR[c.id] = true; });
+    kinds.forEach(function (c) { knownK[c.id] = true; });
+
+    var seen = {}, out = [];
+    arr.forEach(function (rawItem) {
+      var it = normalize(rawItem);
+      if (!it || seen[it.id]) return;
+      if (it.regionId && !knownR[it.regionId]) it.regionId = '';
+      if (it.kindId && !knownK[it.kindId]) it.kindId = '';
+      seen[it.id] = true;
+      out.push(it);
+    });
+    items = out;
+  }
+
+  async function load() {
+    var data = null;
+    var fromLocal = false;
+
+    /* IndexedDB는 시크릿 모드 등에서 차단될 수 있어 따로 감싼다.
+       여기서 실패해도 아래 localStorage 경로로 이어서 읽는다. */
+    try {
+      data = await idb.get(DB_KEY);
+    } catch (e) { data = null; }
+
+    if (!data) {
+      try {
+        var raw = localStorage.getItem(STORE_KEY);
+        if (raw) {
+          data = JSON.parse(raw);
+          fromLocal = true;
+        }
+      } catch (e) { data = null; }
+    }
+
+    applyData(data);
+
+    /* localStorage에서 옮겨온 데이터는 IndexedDB에 한 번 안착시켜
+       다음 로드부터는 IndexedDB에서 바로 읽도록 한다(실패해도 앱 동작엔 지장 없게) */
+    if (fromLocal) {
+      try { await idb.set(DB_KEY, buildPayload()); } catch (e) { /* 그대로 localStorage로 동작 */ }
+    }
+  }
+
+  async function persist() {
+    var payload = buildPayload();
+    try {
+      await idb.set(DB_KEY, payload);
+      return true;
+    } catch (e) {
+      try {
+        localStorage.setItem(STORE_KEY, JSON.stringify(payload));
+        return true;
+      } catch (e2) {
+        toast('저장 공간 문제가 발생했어요. 용량이 꽉 찼을 수 있습니다.', 'error');
+        return false;
+      }
+    }
+  }
+
+  function storageBytes() {
+    try {
+      var raw = JSON.stringify({ regions: regions, kinds: kinds, items: items });
+      return new Blob([raw]).size;
+    } catch (e) { return 0; }
+  }
+  function prettySize(bytes) {
+    if (bytes < 1024) return bytes + 'B';
+    if (bytes < 1024 * 1024) return Math.max(1, Math.round(bytes / 1024)) + 'KB';
+    return (bytes / 1024 / 1024).toFixed(1) + 'MB';
+  }
+
+  /* ---------------- 필터 ---------------- */
+  function matchStatus(it, f) {
+    if (f === 'want') return !it.visited;
+    if (f === 'done') return it.visited;
+    return true;
+  }
+  function countStatus(f) {
+    var n = 0;
+    items.forEach(function (it) { if (matchStatus(it, f)) n++; });
+    return n;
+  }
+  function visibleItems(list, v) {
+    var q = str(v.q).toLowerCase();
+    var out = list.filter(function (it) {
+      if (!matchStatus(it, v.filter)) return false;
+      if (v.region === '__none') {
+        if (it.regionId) return false;
+      } else if (v.region !== 'all') {
+        if (it.regionId !== v.region) return false;
+      }
+      if (v.kind === '__none') {
+        if (it.kindId) return false;
+      } else if (v.kind !== 'all') {
+        if (it.kindId !== v.kind) return false;
+      }
+      if (q) {
+        var hay = (it.name + ' ' + it.reason + ' ' +
+          (it.regionId ? catName('regions', it.regionId) : '') + ' ' +
+          (it.kindId ? catName('kinds', it.kindId) : '')).toLowerCase();
+        if (hay.indexOf(q) === -1) return false;
+      }
+      return true;
+    });
+    out.sort(function (a, b) {
+      if (v.sort === 'name') {
+        var c = String(a.name).localeCompare(String(b.name), 'ko');
+        if (c) return c;
+        return b.createdAt - a.createdAt;
+      }
+      if (v.sort === 'visit') {
+        if (!!a.visited !== !!b.visited) return a.visited ? 1 : -1;
+        return b.createdAt - a.createdAt;
+      }
+      return b.createdAt - a.createdAt;                 /* newest */
+    });
+    return out;
+  }
+
+  /* ---------------- 카드 ---------------- */
+  function visitInner(on) {
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      (on
+        ? '<circle cx="12" cy="12" r="8.6" fill="currentColor" stroke="none"/><path d="M8.3 12.4l2.4 2.4 5-5.1" stroke="#fff" stroke-width="2.2"/>'
+        : '<circle cx="12" cy="12" r="8.4"/>') +
+      '</svg><span>다녀왔어요</span>';
+  }
+
+  function hostLabel(u) {
+    try { return new URL(u).hostname.replace(/^www\./i, ''); } catch (e) { return ''; }
+  }
+  function cardLinkFor(it) {
+    if (it.link) {
+      if (isMapUrl(it.link)) return { url: it.link, label: '지도 열기', kind: 'map', saved: true };
+      return { url: it.link, label: hostLabel(it.link) || '링크 열기', kind: 'link', saved: true };
+    }
+    return { url: mapSearchUrl(it), label: '지도에서 찾기', kind: 'search', saved: false };
+  }
+
+  function cardHTML(it) {
+    var meta = '';
+    if (it.regionId && catName('regions', it.regionId)) {
+      meta += '<span class="badge badge-region">' + esc(catName('regions', it.regionId)) + '</span>';
+    }
+    if (it.kindId && catName('kinds', it.kindId)) {
+      meta += '<span class="badge badge-kind">' + esc(catName('kinds', it.kindId)) + '</span>';
+    }
+    if (it.visited) meta += '<span class="badge badge-visit">다녀왔어요</span>';
+    var reason = it.reason ? '<p class="memo">' + esc(it.reason) + '</p>' : '';
+    var link = cardLinkFor(it);
+    var linkIcon = link.kind === 'link'
+      ? '<path d="M14 4.5h5.5V10"/><path d="M19.5 4.5l-8 8"/><path d="M18 14.5v4a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 4 18.5v-11A1.5 1.5 0 0 1 5.5 6h4"/>'
+      : '<path d="M12 21s7-6.4 7-11a7 7 0 1 0-14 0c0 4.6 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>';
+    var linkLabel = link.kind === 'link'
+      ? '<span class="host">' + esc(link.label) + '</span>'
+      : esc(link.label);
+    return '<article class="card' + (it.visited ? ' is-visit' : '') + '" data-id="' + esc(it.id) + '">' +
+      '<div class="card-body" data-act="edit" role="button" tabindex="0" aria-label="' + esc(it.name) + ' 수정하기">' +
+        '<div class="info">' +
+          '<h3 class="name">' + esc(it.name) + '</h3>' +
+          (meta ? '<div class="meta">' + meta + '</div>' : '') +
+          reason +
+        '</div>' +
+      '</div>' +
+      '<div class="card-bar">' +
+        '<a class="link-btn' + (link.saved ? ' is-strong' : '') + '" href="' + esc(link.url) + '" target="_blank" rel="noopener noreferrer" data-act="link" aria-label="' + esc(it.name) + ' ' + (link.kind === 'link' ? '링크 열기' : esc(link.label)) + '" title="' + esc(link.url) + '">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + linkIcon + '</svg>' +
+          linkLabel +
+        '</a>' +
+        '<button type="button" class="visit-btn' + (it.visited ? ' is-on' : '') + '" data-act="visit" aria-pressed="' + (it.visited ? 'true' : 'false') + '" aria-label="' + esc(it.name) + ' 다녀왔어요 표시 전환">' +
+          visitInner(it.visited) +
+        '</button>' +
+      '</div>' +
+    '</article>';
+  }
+
+  function catChipRow(which, current, allLabel) {
+    var key = itemCatKey(which);
+    var html = '<button type="button" class="chip cat' + (current === 'all' ? ' is-on' : '') + '" data-cat="all" data-which="' + which + '" role="tab" aria-selected="' + (current === 'all' ? 'true' : 'false') + '">' + allLabel + '</button>';
+    catList(which).forEach(function (c) {
+      var n = catCountOf(which, c.id);
+      var on = current === c.id;
+      html += '<button type="button" class="chip cat' + (on ? ' is-on' : '') + '" data-cat="' + esc(c.id) + '" data-which="' + which + '" role="tab" aria-selected="' + (on ? 'true' : 'false') + '">' +
+        esc(c.name) + (n ? '<span class="num">' + n + '</span>' : '') + '</button>';
+    });
+    var noneCount = 0;
+    items.forEach(function (it) { if (!it[key]) noneCount++; });
+    if (noneCount) {
+      html += '<button type="button" class="chip cat' + (current === '__none' ? ' is-on' : '') + '" data-cat="__none" data-which="' + which + '" role="tab" aria-selected="' + (current === '__none' ? 'true' : 'false') + '">미지정<span class="num">' + noneCount + '</span></button>';
+    }
+    return html;
+  }
+
+  function renderFilterChips() {
+    els.regionChips.innerHTML = catChipRow('regions', view.region, '모든 지역');
+    els.kindChips.innerHTML = catChipRow('kinds', view.kind, '모든 종류');
+  }
+
+  function updateStats() {
+    var total = items.length;
+    var want = countStatus('want');
+    var done = countStatus('done');
+
+    els.countAll.textContent = total;
+    els.countWant.textContent = want;
+    els.countDone.textContent = done;
+
+    els.headSub.textContent = total
+      ? '가보고 싶은 ' + want + '곳 · 다녀온 ' + done + '곳'
+      : '가고 싶은 곳을 모아두세요';
+    els.listCount.textContent = els.list.querySelectorAll('.card').length + '곳';
+
+    var bytes = storageBytes();
+    els.usage.innerHTML = (sync.token
+      ? '안전한 보관소에 저장되고 <b>비밀 창고</b>에도 함께 보관돼요'
+      : '현재 기기의 브라우저에만 저장돼요') +
+      ' · <b>' + total + '곳</b>' +
+      (bytes ? ' · 약 ' + prettySize(bytes) : '') +
+      '<br>' + (sync.token
+        ? '폰을 바꾸셔도 같은 열쇠로 장소 목록을 그대로 이어서 쓸 수 있어요.'
+        : '폰을 바꾸실 땐 위의 <b>백업</b>으로 파일을 만들어 두세요.');
+  }
+
+  function checkEmptyList(total) {
+    if (els.list.children.length === 0) {
+      els.empty.hidden = false;
+      if (!total) {
+        els.emptyTitle.textContent = '아직 가보고 싶은 곳이 없어요';
+        els.emptyText.innerHTML = '가고 싶은 카페, 팝업, 여행지 하나씩<br>담아두면 다음 약속이 쉬워져요.';
+        els.emptyBtn.textContent = '+ 첫 장소 담기';
+        els.emptyBtn.dataset.mode = 'add';
+      } else {
+        els.emptyTitle.textContent = '조건에 맞는 곳이 없어요';
+        els.emptyText.innerHTML = '검색어나 필터를 바꿔서<br>다시 찾아보세요.';
+        els.emptyBtn.textContent = '필터 초기화';
+        els.emptyBtn.dataset.mode = 'reset';
+      }
+    } else {
+      els.empty.hidden = true;
+    }
+  }
+
+  function render() {
+    if (view.region !== 'all' && view.region !== '__none' && !catName('regions', view.region)) view.region = 'all';
+    if (view.kind !== 'all' && view.kind !== '__none' && !catName('kinds', view.kind)) view.kind = 'all';
+    if (['all', 'want', 'done'].indexOf(view.filter) === -1) view.filter = 'all';
+    if (['newest', 'name', 'visit'].indexOf(view.sort) === -1) view.sort = 'newest';
+
+    var list = visibleItems(items, view);
+    els.list.innerHTML = list.map(cardHTML).join('');
+
+    Array.prototype.forEach.call(els.statusChips.querySelectorAll('.chip[data-filter]'), function (c) {
+      var on = c.getAttribute('data-filter') === view.filter;
+      c.classList.toggle('is-on', on);
+      c.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+    if (els.sort.value !== view.sort) els.sort.value = view.sort;
+
+    renderFilterChips();
+    updateStats();
+    checkEmptyList(items.length);
+  }
+
+  /* ---------------- toast ---------------- */
+  var toastTimer = null;
+  function toast(msg, kind) {
+    els.toast.textContent = msg;
+    els.toast.className = 'toast show' + (kind === 'error' ? ' error' : '');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () {
+      els.toast.className = 'toast' + (kind === 'error' ? ' error' : '');
+    }, 2400);
+  }
+
+  /* ---------------- layers ---------------- */
+  function openLayer(el) {
+    lastFocus = document.activeElement;
+    el.classList.add('show');
+    el.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('lock');
+  }
+  function closeLayer(el) {
+    el.classList.remove('show');
+    el.setAttribute('aria-hidden', 'true');
+    var anyOpen = document.querySelector('.layer.show');
+    if (!anyOpen) {
+      document.body.classList.remove('lock');
+      if (lastFocus && typeof lastFocus.focus === 'function') {
+        try { lastFocus.focus({ preventScroll: true }); } catch (e) { /* noop */ }
+      }
+    }
+  }
+  function dismissConfirm() {
+    var r = confirmResolve;
+    confirmResolve = null;
+    if (r) r(null);
+  }
+
+  function askConfirm(opts) {
+    return new Promise(function (resolve) {
+      if (confirmResolve) { var prev = confirmResolve; confirmResolve = null; prev(null); }
+      els.confirmTitle.textContent = opts.title || '확인';
+      els.confirmMessage.textContent = opts.message || '';
+      els.confirmActions.innerHTML = '';
+      (opts.actions || []).forEach(function (a) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'btn ' + (a.variant || 'soft');
+        b.textContent = a.label;
+        b.addEventListener('click', function () { settle(a.value); });
+        els.confirmActions.appendChild(b);
+      });
+      function settle(v) {
+        if (confirmResolve === settle) confirmResolve = null;
+        closeLayer(els.confirmLayer);
+        resolve(v);
+      }
+      confirmResolve = settle;
+      openLayer(els.confirmLayer);
+      var first = els.confirmActions.querySelector('.btn.primary, .btn.danger, .btn.soft');
+      if (first) setTimeout(function () { try { first.focus(); } catch (e) {} }, 120);
+    });
+  }
+
+  /* ---------------- 분류 관리 ---------------- */
+  function fillCatSelects(regionId, kindId) {
+    var r = regionId === undefined ? els.region.value : regionId;
+    var k = kindId === undefined ? els.kind.value : kindId;
+    els.region.innerHTML = '<option value="">미지정</option>' + regions.map(function (c) {
+      return '<option value="' + esc(c.id) + '">' + esc(c.name) + '</option>';
+    }).join('');
+    els.kind.innerHTML = '<option value="">미지정</option>' + kinds.map(function (c) {
+      return '<option value="' + esc(c.id) + '">' + esc(c.name) + '</option>';
+    }).join('');
+    els.region.value = (r && catName('regions', r)) ? r : '';
+    els.kind.value = (k && catName('kinds', k)) ? k : '';
+  }
+
+  function renderCatTabs() {
+    Array.prototype.forEach.call(els.catTabs.querySelectorAll('.cat-tab'), function (t) {
+      var on = t.getAttribute('data-which') === catMode;
+      t.classList.toggle('is-on', on);
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+    els.catHeadTitle.textContent = '내 ' + CATS[catMode].label;
+    els.newCatName.placeholder = catMode === 'kinds' ? '새 종류 이름 (예: 온천)' : '새 지역 이름 (예: 벳푸)';
+    els.catNote.textContent = catMode === 'kinds'
+      ? '이름을 고치면 그 종류의 장소에 바로 반영돼요. 종류를 지우면 그 안의 장소는 ‘미지정’으로 옮겨져요.'
+      : '이름을 고치면 그 지역의 장소에 바로 반영돼요. 지역을 지우면 그 안의 장소는 ‘미지정’으로 옮겨져요.';
+  }
+
+  function renderCatList() {
+    var arr = catList(catMode);
+    els.catCount.textContent = arr.length + '개';
+    renderCatTabs();
+    if (!arr.length) {
+      els.catList.innerHTML = '<p class="cat-empty">아직 만든 ' + CATS[catMode].label + '이 없어요. 아래에서 첫 ' + CATS[catMode].label + '을 만들어 보세요.</p>';
+      return;
+    }
+    els.catList.innerHTML = arr.map(function (c) {
+      return '<div class="cat-row" data-cid="' + esc(c.id) + '">' +
+        '<input class="input cat-name" type="text" maxlength="20" value="' + esc(c.name) + '" aria-label="' + CATS[catMode].label + ' 이름 수정">' +
+        '<span class="cat-n" title="이 ' + CATS[catMode].label + '의 장소 수">' + catCountOf(catMode, c.id) + '개</span>' +
+        '<button type="button" class="cat-del" data-act="del" aria-label="' + esc(c.name) + ' ' + CATS[catMode].label + ' 삭제">✕</button>' +
+      '</div>';
+    }).join('');
+  }
+
+  function openCatSheet(which) {
+    if (which) catMode = which;
+    els.newCatName.value = '';
+    renderCatList();
+    openLayer(els.catLayer);
+  }
+  function closeCatSheet() {
+    closeLayer(els.catLayer);
+    fillCatSelects();
+  }
+
+  async function renameCategory(which, id, rawName, inputEl) {
+    var c = null, arr = catList(which);
+    arr.forEach(function (x) { if (x.id === id) c = x; });
+    if (!c) return;
+    var name = str(rawName).replace(/\s+/g, ' ').slice(0, 20);
+    if (!name) {
+      if (inputEl) inputEl.value = c.name;
+      toast(CATS[which].label + ' 이름을 적어 주세요', 'error');
+      return;
+    }
+    if (name === c.name) {
+      if (inputEl) inputEl.value = c.name;
+      return;
+    }
+    var dup = catByName(which, name);
+    if (dup && dup.id !== c.id) {
+      if (inputEl) inputEl.value = c.name;
+      toast('같은 이름의 ' + CATS[which].label + '이 이미 있어요', 'error');
+      return;
+    }
+    var prev = c.name;
+    c.name = name;
+    c.updatedAt = Date.now();
+
+    if (!(await persist())) { c.name = prev; if (inputEl) inputEl.value = prev; return; }
+    render();
+    renderCatList();
+    fillCatSelects();
+    toast(CATS[which].label + ' 이름을 바꿨어요');
+    scheduleSync();
+  }
+
+  async function addCategory(which, rawName) {
+    var name = str(rawName).replace(/\s+/g, ' ').slice(0, 20);
+    if (!name) {
+      toast(CATS[which].label + ' 이름을 적어 주세요', 'error');
+      try { els.newCatName.focus(); } catch (e) {}
+      return false;
+    }
+    if (catByName(which, name)) {
+      toast('같은 이름의 ' + CATS[which].label + '이 이미 있어요', 'error');
+      return false;
+    }
+    var arr = catList(which);
+    if (arr.length >= CATS[which].max) {
+      toast(CATS[which].label + '은 ' + CATS[which].max + '개까지 만들 수 있어요', 'error');
+      return false;
+    }
+    arr.push({ id: uid(), name: name, updatedAt: Date.now() });
+
+    if (!(await persist())) { arr.pop(); return false; }
+    els.newCatName.value = '';
+    render();
+    renderCatList();
+    fillCatSelects();
+    toast('‘' + name + '’ ' + CATS[which].label + '을 만들었어요');
+    scheduleSync();
+    return true;
+  }
+
+  async function deleteCategory(which, id) {
+    var arr = catList(which);
+    var c = null;
+    arr.forEach(function (x) { if (x.id === id) c = x; });
+    if (!c) return;
+    var key = itemCatKey(which);
+    var n = catCountOf(which, id);
+    var ok = await askConfirm({
+      title: CATS[which].label + '을 지울까요?',
+      message: '‘' + c.name + '’ ' + CATS[which].label + '을 지워요.' +
+        (n ? '\n이 ' + CATS[which].label + '의 장소 ' + n + '곳은 ‘미지정’으로 옮겨져요.' : ''),
+      actions: [
+        { label: '지우기', value: true, variant: 'danger' },
+        { label: '취소', value: false, variant: 'soft' }
+      ]
+    });
+    if (!ok) return;
+    var prevItems = items.slice();
+    var prevCats = arr.slice();
+    tombs[which][id] = Date.now();
+    setCatList(which, arr.filter(function (x) { return x.id !== id; }));
+    items = items.map(function (it) {
+      if (it[key] !== id) return it;
+      var copy = Object.assign({}, it);
+      copy[key] = '';
+      copy.updatedAt = Date.now();
+      return copy;
+    });
+    if (which === 'regions' && view.region === id) view.region = 'all';
+    if (which === 'kinds' && view.kind === id) view.kind = 'all';
+
+    if (!(await persist())) { items = prevItems; setCatList(which, prevCats); return; }
+    render();
+    renderCatList();
+    fillCatSelects();
+    toast(n ? CATS[which].label + '을 지우고 장소 ' + n + '곳을 미지정으로 옮겼어요' : CATS[which].label + '을 지웠어요');
+    scheduleSync();
+  }
+
+  /* ---------------- sheet ---------------- */
+  function updateLinkPreview() {
+    var url = safeUrl(els.link.value);
+    if (url) {
+      var host = hostLabel(url) || '링크';
+      els.linkPreview.href = url;
+      els.linkPreview.textContent = (host.length > 30 ? host.slice(0, 29) + '…' : host) + ' 열기 ↗';
+      els.linkPreview.hidden = false;
+    } else {
+      els.linkPreview.removeAttribute('href');
+      els.linkPreview.hidden = true;
+    }
+  }
+
+  function openSheet(id) {
+    var item = id ? byId(id) : null;
+    editingId = item ? item.id : null;
+
+    els.sheetTitle.textContent = item ? '장소 수정' : '가고 싶은 곳 담기';
+    els.name.value = item ? item.name : '';
+    fillCatSelects(
+      item ? item.regionId : (view.region !== 'all' && view.region !== '__none' ? view.region : ''),
+      item ? item.kindId : (view.kind !== 'all' && view.kind !== '__none' ? view.kind : '')
+    );
+    els.reason.value = item ? item.reason : '';
+    els.link.value = item ? item.link : '';
+    els.visited.checked = item ? !!item.visited : false;
+    els.name.classList.remove('err');
+    els.nameError.classList.remove('show');
+    els.deleteBtn.hidden = !item;
+    els.saveBtn.textContent = item ? '수정 저장' : '목록에 담기';
+    updateLinkPreview();
+
+    els.sheet.scrollTop = 0;
+    openLayer(els.sheetLayer);
+    if (window.matchMedia && window.matchMedia('(pointer:fine)').matches) {
+      setTimeout(function () { try { els.name.focus({ preventScroll: true }); } catch (e) {} }, 320);
+    }
+  }
+
+  function closeSheet() {
+    closeLayer(els.sheetLayer);
+    editingId = null;
+    els.form.reset();
+    els.name.classList.remove('err');
+    els.nameError.classList.remove('show');
+    els.deleteBtn.hidden = true;
+    els.visited.checked = false;
+    updateLinkPreview();
+  }
+
+  /* ---------------- 방문 완료 토글 (부분 DOM 업데이트) ---------------- */
+  function syncCardDom(it) {
+    var card = els.list.querySelector('.card[data-id="' + it.id + '"]');
+    if (!card) return false;
+    card.classList.toggle('is-visit', !!it.visited);
+
+    var btn = card.querySelector('[data-act="visit"]');
+    if (btn) {
+      btn.classList.toggle('is-on', !!it.visited);
+      btn.setAttribute('aria-pressed', it.visited ? 'true' : 'false');
+      btn.innerHTML = visitInner(!!it.visited);
+    }
+
+    var meta = card.querySelector('.meta');
+    var badge = meta ? meta.querySelector('.badge-visit') : null;
+    if (it.visited) {
+      if (!meta) {
+        meta = document.createElement('div');
+        meta.className = 'meta';
+        var nameEl = card.querySelector('.info .name');
+        if (nameEl) nameEl.insertAdjacentElement('afterend', meta);
+      }
+      if (!badge && meta) {
+        var span = document.createElement('span');
+        span.className = 'badge badge-visit';
+        span.textContent = '다녀왔어요';
+        meta.appendChild(span);
+      }
+    } else if (badge) {
+      badge.remove();
+      if (meta && !meta.innerHTML.trim()) meta.remove();
+    }
+    return true;
+  }
+
+  async function toggleVisited(id) {
+    var it = byId(id);
+    if (!it) return;
+    var prev = { visited: it.visited, visitedAt: it.visitedAt };
+    it.visited = !it.visited;
+    it.visitedAt = it.visited ? Date.now() : 0;
+    it.updatedAt = Date.now();
+
+    if (!(await persist())) {
+      it.visited = prev.visited;
+      it.visitedAt = prev.visitedAt;
+      it.updatedAt = Date.now();
+      return;
+    }
+
+    if (!matchStatus(it, view.filter)) {
+      var card = els.list.querySelector('.card[data-id="' + it.id + '"]');
+      if (card) card.remove();
+      checkEmptyList(items.length);
+    } else {
+      syncCardDom(it);
+    }
+    updateStats();
+
+    if (navigator.vibrate) { try { navigator.vibrate(8); } catch (e) {} }
+    if (it.visited) toast('‘' + it.name + '’ 다녀온 곳으로 표시했어요');
+    else toast('‘' + it.name + '’ 다시 가고 싶은 곳으로 옮겼어요');
+    scheduleSync();
+  }
+
+  /* ---------------- import / export ---------------- */
+  function exportJSON() {
+    if (!items.length && !regions.length && !kinds.length) { toast('내보낼 장소가 없어요'); return; }
+    var payload = {
+      app: APP,
+      version: DATA_VERSION,
+      exportedAt: new Date().toISOString(),
+      regions: regions,
+      kinds: kinds,
+      items: items
+    };
+    var d = new Date();
+    var stamp = d.getFullYear() + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0');
+    var blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'places-' + stamp + '.json';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+    toast('장소 백업 파일을 내려받았어요');
+  }
+
+  async function handleImportFile(file) {
+    var text;
+    try { text = await file.text(); }
+    catch (e) { toast('파일을 읽지 못했어요', 'error'); return; }
+    var data;
+    try { data = JSON.parse(text); }
+    catch (e) { toast('JSON 파일이 아니에요', 'error'); return; }
+
+    var arr = Array.isArray(data) ? data : (data && Array.isArray(data.items) ? data.items : null);
+    if (!arr) { toast('장소 목록 백업 파일이 아니에요', 'error'); return; }
+    var isObj = !!data && !Array.isArray(data);
+    var inRegions = isObj && Array.isArray(data.regions) ? cleanCategories(data.regions) : null;
+    var inKinds = isObj && Array.isArray(data.kinds) ? cleanCategories(data.kinds) : null;
+    var incoming = arr.map(normalize).filter(Boolean);
+    if (!incoming.length) { toast('불러올 장소가 없어요', 'error'); return; }
+
+    var catNote = (inRegions || inKinds)
+      ? '\n지역 ' + (inRegions ? inRegions.length : 0) + '개 · 종류 ' + (inKinds ? inKinds.length : 0) + '개도 함께 와요.'
+      : '';
+    var choice = await askConfirm({
+      title: '백업 불러오기',
+      message: incoming.length + '곳의 장소를 찾았어요.' + catNote + '\n지금 목록(' + items.length + '곳)에 합칠까요, 아니면 바꿀까요?',
+      actions: [
+        { label: '지금 목록에 합치기', value: 'merge', variant: 'primary' },
+        { label: '지금 목록을 바꾸기', value: 'replace', variant: 'soft' },
+        { label: '취소', value: null, variant: 'ghost' }
+      ]
+    });
+    if (!choice) return;
+
+    var prevItems = items.slice();
+    var prevRegions = regions.slice();
+    var prevKinds = kinds.slice();
+
+    if (choice === 'replace') {
+      items.forEach(function (it) { tombs.items[it.id] = Date.now(); });
+      var nextRegions = inRegions && inRegions.length ? inRegions.slice() : regions.slice();
+      var nextKinds = inKinds && inKinds.length ? inKinds.slice() : kinds.slice();
+      var knownR = {}, knownK = {};
+      nextRegions.forEach(function (c) { knownR[c.id] = true; });
+      nextKinds.forEach(function (c) { knownK[c.id] = true; });
+      items = incoming.map(function (it) {
+        var copy = Object.assign({}, it, { id: uid() });
+        copy.regionId = (it.regionId && knownR[it.regionId]) ? it.regionId : '';
+        copy.kindId = (it.kindId && knownK[it.kindId]) ? it.kindId : '';
+        return copy;
+      });
+      regions = nextRegions;
+      kinds = nextKinds;
+      if (!(await persist())) { items = prevItems; regions = prevRegions; kinds = prevKinds; return; }
+      render();
+      fillCatSelects();
+      toast(items.length + '곳을 불러왔어요');
+      scheduleSync();
+      return;
+    }
+
+    /* 합치기: 백업의 분류는 이름으로 맞춰 보고, 없으면 새로 만든다 */
+    function mergeCats(which, inCats) {
+      var inCatName = {};
+      (inCats || []).forEach(function (c) { inCatName[c.id] = c.name; });
+      var arr = catList(which);
+      var byName = {};
+      arr.forEach(function (c) { byName[normName(c.name)] = c.id; });
+      return function (catId) {
+        var name = inCatName[catId];
+        if (!name) return '';
+        var k = normName(name);
+        if (byName[k]) return byName[k];
+        if (arr.length >= CATS[which].max) return '';
+        var nc = { id: uid(), name: name, updatedAt: Date.now() };
+        arr.push(nc);
+        byName[k] = nc.id;
+        return nc.id;
+      };
+    }
+    var localRegion = mergeCats('regions', inRegions);
+    var localKind = mergeCats('kinds', inKinds);
+
+    var sig = function (it) { return normName(it.name); };
+    var have = {};
+    items.forEach(function (it) { have[sig(it)] = true; });
+    var added = 0;
+    incoming.forEach(function (it) {
+      var k = sig(it);
+      if (have[k]) return;
+      have[k] = true;
+      var copy = Object.assign({}, it, { id: uid() });
+      copy.regionId = localRegion(it.regionId);
+      copy.kindId = localKind(it.kindId);
+      items.push(copy);
+      added++;
+    });
+
+    if (!(await persist())) { items = prevItems; regions = prevRegions; kinds = prevKinds; return; }
+    render();
+    fillCatSelects();
+    toast(added ? added + '곳을 더했어요' : '이미 같은 장소가 다 있어요');
+    scheduleSync();
+  }
+
+  /* ---------------- GitHub 비밀 창고(Gist) 동기화 ---------------- */
+  var SYNC_TEXT = { idle: '연결 전', synced: '동기화됨', syncing: '동기화 중', error: '오류' };
+
+  var sync = {
+    token: '', gistId: '', login: '', lastSyncAt: 0,
+    state: 'idle', message: '', busy: false, again: false, timer: null
+  };
+
+  function SyncError(code, message) {
+    this.code = code;
+    this.message = message;
+  }
+  SyncError.prototype = Object.create(Error.prototype);
+
+  function cleanTombs(raw) {
+    var out = {};
+    if (!raw || typeof raw !== 'object') return out;
+    Object.keys(raw).forEach(function (k) {
+      var t = Number(raw[k]);
+      if (k && isFinite(t) && t > 0) out[k] = t;
+    });
+    return out;
+  }
+  function pruneTombs(map) {
+    var keys = Object.keys(map);
+    if (keys.length <= MAX_TOMBS) return map;
+    keys.sort(function (a, b) { return map[b] - map[a]; });
+    var out = {};
+    keys.slice(0, MAX_TOMBS).forEach(function (k) { out[k] = map[k]; });
+    return out;
+  }
+
+  /* --- 열쇠 보관 --- */
+  function readSync() {
+    var data = null;
+    try {
+      var raw = localStorage.getItem(SYNC_KEY);
+      if (raw) data = JSON.parse(raw);
+    } catch (e) { data = null; }
+    if (!data || typeof data !== 'object') return;
+    sync.token = typeof data.token === 'string' ? data.token : '';
+    sync.gistId = typeof data.gistId === 'string' ? data.gistId : '';
+    sync.login = typeof data.login === 'string' ? data.login : '';
+    sync.lastSyncAt = Number(data.lastSyncAt) || 0;
+  }
+  function saveSync() {
+    try {
+      if (!sync.token) { localStorage.removeItem(SYNC_KEY); return; }
+      localStorage.setItem(SYNC_KEY, JSON.stringify({
+        token: sync.token, gistId: sync.gistId, login: sync.login, lastSyncAt: sync.lastSyncAt
+      }));
+    } catch (e) { /* 무시 */ }
+  }
+
+  /* --- GitHub API --- */
+  async function gh(path, opts) {
+    opts = opts || {};
+    var headers = {
+      'Accept': 'application/vnd.github+json',
+      'Authorization': 'Bearer ' + sync.token,
+      'X-GitHub-Api-Version': '2022-11-28'
+    };
+    if (opts.body) headers['Content-Type'] = 'application/json';
+    var res;
+    try {
+      res = await fetch(GH_API + path, {
+        method: opts.method || 'GET',
+        headers: headers,
+        body: opts.body ? JSON.stringify(opts.body) : undefined,
+        cache: 'no-store'
+      });
+    } catch (e) {
+      throw new SyncError('net', '인터넷에 연결하지 못했어요. 연결을 확인해 주세요');
+    }
+    var text = '';
+    try { text = await res.text(); } catch (e) { text = ''; }
+    var data = null;
+    try { data = text ? JSON.parse(text) : null; } catch (e) { data = null; }
+    if (!res.ok) {
+      var msg = data && data.message ? String(data.message) : '';
+      if (res.status === 401) throw new SyncError('auth', '열쇠(토큰)가 맞지 않아요. 다시 확인해 주세요');
+      if (res.status === 403) throw new SyncError('auth', /rate limit/i.test(msg) ? '요청이 너무 많았어요. 잠시 뒤 다시 시도해 주세요' : '이 열쇠로는 할 수 없어요. gist 권한을 확인해 주세요');
+      if (res.status === 404) throw new SyncError('nf', '비밀 창고를 찾지 못했어요');
+      if (res.status === 422) throw new SyncError('size', '목록이 너무 커서 창고에 담지 못했어요. 백업 파일을 이용해 주세요');
+      throw new SyncError('http', 'GitHub에서 거절했어요 (' + res.status + ')');
+    }
+    return data;
+  }
+
+  function syncPayload() {
+    return {
+      app: APP,
+      version: DATA_VERSION,
+      savedAt: new Date().toISOString(),
+      updatedAt: Date.now(),
+      regions: regions.map(function (c) { return { id: c.id, name: c.name, updatedAt: c.updatedAt || 0 }; }),
+      kinds: kinds.map(function (c) { return { id: c.id, name: c.name, updatedAt: c.updatedAt || 0 }; }),
+      items: items,
+      deletedIds: tombs.items,
+      deletedRegionIds: tombs.regions,
+      deletedKindIds: tombs.kinds
+    };
+  }
+  function filesBody(content) {
+    var files = {};
+    files[GIST_FILE] = { content: content };
+    return { files: files };
+  }
+
+  /* 열쇠 하나로 내 장소 비밀 창고를 찾는다 (위시리스트·식료품 창고는 건드리지 않는다) */
+  async function findGist() {
+    for (var page = 1; page <= 3; page++) {
+      var list = await gh('/gists?per_page=100&page=' + page);
+      if (!Array.isArray(list)) return '';
+      for (var i = 0; i < list.length; i++) {
+        var g = list[i];
+        if (g && g.description === GIST_DESC && g.files && g.files[GIST_FILE]) return g.id;
+      }
+      if (list.length < 100) return '';
+    }
+    return '';
+  }
+  async function ensureGist() {
+    if (sync.gistId) return sync.gistId;
+    var id = await findGist();
+    if (!id) {
+      var made = await gh('/gists', {
+        method: 'POST',
+        body: {
+          description: GIST_DESC,
+          public: false,
+          files: filesBody(JSON.stringify(syncPayload())).files
+        }
+      });
+      id = made && made.id ? made.id : '';
+      if (!id) throw new SyncError('create', '비밀 창고를 만들지 못했어요');
+    }
+    sync.gistId = id;
+    saveSync();
+    return id;
+  }
+  async function readRemote(id) {
+    var g = await gh('/gists/' + id);
+    var file = g && g.files ? g.files[GIST_FILE] : null;
+    if (!file) return null;
+    var text = file.content;
+    if ((file.truncated || !text) && file.raw_url) {
+      try {
+        var r = await fetch(file.raw_url, { cache: 'no-store' });
+        if (r.ok) text = await r.text();
+      } catch (e) { }
+    }
+    if (!text) return null;
+    try { return JSON.parse(text); } catch (e) {
+      throw new SyncError('parse', '창고의 내용을 읽지 못했어요. 잠시 뒤 다시 시도해 주세요');
+    }
+  }
+
+  /* 원격 내용을 로컬에 합친다 */
+  function mergeRemote(remote) {
+    if (!remote || typeof remote !== 'object') return false;
+    var changed = false;
+
+    Object.keys(tombs).forEach(function (k) {
+      var incoming = cleanTombs(remote[CATS[k] ? CATS[k].tomb : 'deletedIds']);
+      Object.keys(incoming).forEach(function (id) {
+        if (!tombs[k][id] || incoming[id] > tombs[k][id]) { tombs[k][id] = incoming[id]; changed = true; }
+      });
+    });
+
+    /* 지역·종류 */
+    CAT_ORDER.forEach(function (which) {
+      var arr = catList(which);
+      var byIdMap = {};
+      arr.forEach(function (c) { byIdMap[c.id] = c; });
+      var rCats = Array.isArray(remote[which]) ? cleanCategories(remote[which]) : [];
+      rCats.forEach(function (rc) {
+        var tomb = tombs[which][rc.id];
+        if (tomb && tomb >= (rc.updatedAt || 0)) return;
+        var mine = byIdMap[rc.id];
+        if (!mine) {
+          if (arr.length >= CATS[which].max) return;
+          arr.push(rc);
+          byIdMap[rc.id] = rc;
+          changed = true;
+        } else if ((rc.updatedAt || 0) > (mine.updatedAt || 0)) {
+          mine.name = rc.name;
+          mine.updatedAt = rc.updatedAt;
+          changed = true;
+        }
+      });
+      var before = arr.length;
+      var filtered = arr.filter(function (c) {
+        var tomb = tombs[which][c.id];
+        return !(tomb && tomb >= (c.updatedAt || 0));
+      });
+      if (filtered.length !== before) changed = true;
+      setCatList(which, filtered);
+    });
+
+    var beforeItems = items.length;
+    items = items.filter(function (it) {
+      var t = tombs.items[it.id];
+      return !(t && t >= (it.updatedAt || 0));
+    });
+    if (items.length !== beforeItems) changed = true;
+
+    var map = {};
+    items.forEach(function (it) { map[it.id] = it; });
+    (Array.isArray(remote.items) ? remote.items : []).forEach(function (raw) {
+      var rit = normalize(raw);
+      if (!rit) return;
+      var tomb = tombs.items[rit.id];
+      if (tomb && tomb >= rit.updatedAt) return;
+      var mine = map[rit.id];
+      if (!mine) {
+        items.push(rit);
+        map[rit.id] = rit;
+        changed = true;
+        return;
+      }
+      if (rit.updatedAt > mine.updatedAt) {
+        var idx = items.indexOf(mine);
+        if (idx >= 0) items[idx] = rit;
+        map[rit.id] = rit;
+        changed = true;
+      }
+    });
+
+    var knownR = {}, knownK = {};
+    regions.forEach(function (c) { knownR[c.id] = true; });
+    kinds.forEach(function (c) { knownK[c.id] = true; });
+    items.forEach(function (it) {
+      if (it.regionId && !knownR[it.regionId]) { it.regionId = ''; changed = true; }
+      if (it.kindId && !knownK[it.kindId]) { it.kindId = ''; changed = true; }
+    });
+
+    tombstonesPrune();
+    return changed;
+  }
+
+  function tombstonesPrune() {
+    tombs.items = pruneTombs(tombs.items);
+    tombs.regions = pruneTombs(tombs.regions);
+    tombs.kinds = pruneTombs(tombs.kinds);
+  }
+
+  async function syncNow(opts) {
+    opts = opts || {};
+    if (!sync.token) { toast('먼저 GitHub 열쇠로 연결해 주세요', 'error'); return false; }
+    if (sync.busy) { sync.again = true; return false; }
+    sync.busy = true;
+    setSyncState('syncing', '동기화하는 중…');
+    var retried = false;
+    try {
+      while (true) {
+        try {
+          var id = await ensureGist();
+          var remote = await readRemote(id);
+          var changed = remote ? mergeRemote(remote) : false;
+          if (changed) {
+            if (await persist()) {
+              render();
+              if (!els.sheetLayer.classList.contains('show')) fillCatSelects();
+            }
+          }
+          await gh('/gists/' + id, { method: 'PATCH', body: filesBody(JSON.stringify(syncPayload())) });
+          sync.lastSyncAt = Date.now();
+          saveSync();
+          setSyncState('synced', '방금 비밀 창고와 맞췄어요');
+          if (changed && !opts.silent) toast('다른 기기의 변경을 가져왔어요');
+          else if (!opts.silent) toast('동기화했어요');
+          return true;
+        } catch (inner) {
+          if (inner && inner.code === 'nf' && !retried) {
+            retried = true;
+            sync.gistId = '';
+            saveSync();
+            continue;
+          }
+          throw inner;
+        }
+      }
+    } catch (err) {
+      var msg = err && err.message ? err.message : '동기화하지 못했어요';
+      setSyncState('error', msg);
+      if (!opts.silent) toast(msg, 'error');
+      return false;
+    } finally {
+      sync.busy = false;
+      renderSyncUI();
+      if (sync.again) { sync.again = false; scheduleSync(300); }
+    }
+  }
+
+  function scheduleSync(delay) {
+    if (!sync.token) return;
+    if (sync.timer) clearTimeout(sync.timer);
+    sync.timer = setTimeout(function () {
+      sync.timer = null;
+      syncNow({ silent: true });
+    }, typeof delay === 'number' ? delay : 900);
+  }
+
+  async function connectWithToken(raw) {
+    var token = str(raw).replace(/\s+/g, '');
+    if (!token) {
+      toast('열쇠(토큰)를 붙여넣어 주세요', 'error');
+      try { els.syncToken.focus(); } catch (e) {}
+      return false;
+    }
+    if (sync.busy) { toast('지금 동기화 중이에요. 잠시만 기다려 주세요'); return false; }
+    var prev = { token: sync.token, gistId: sync.gistId, login: sync.login };
+    sync.busy = true;
+    setSyncState('syncing', 'GitHub에 연결하는 중…');
+    sync.token = token;
+    sync.gistId = '';
+    sync.login = '';
+    try {
+      var me = await gh('/user');
+      sync.login = me && me.login ? String(me.login) : '';
+    } catch (err) {
+      sync.token = prev.token;
+      sync.gistId = prev.gistId;
+      sync.login = prev.login;
+      sync.busy = false;
+      saveSync();
+      setSyncState(prev.token ? 'synced' : 'error', err.message || '연결하지 못했어요');
+      toast(err.message || '연결하지 못했어요', 'error');
+      return false;
+    }
+    sync.busy = false;
+    saveSync();
+    var ok = await syncNow({ silent: true });
+    if (!ok) {
+      if (!sync.gistId) {
+        sync.token = prev.token;
+        sync.gistId = prev.gistId;
+        sync.login = prev.login;
+        saveSync();
+        setSyncState(prev.token ? 'synced' : 'error', '연결하지 못했어요. 잠시 뒤 다시 시도해 주세요');
+      }
+      return false;
+    }
+    if (els.syncToken) els.syncToken.value = '';
+    setSyncState('synced', '연결하고 비밀 창고와 맞췄어요' + (sync.login ? ' (@' + sync.login + ')' : ''));
+    toast(sync.login ? '@' + sync.login + ' 계정으로 연결했어요' : '동기화를 연결했어요');
+    renderSyncUI();
+    render();
+    return true;
+  }
+
+  async function disconnectSync() {
+    var ok = await askConfirm({
+      title: '동기화를 끊을까요?',
+      message: '이 기기에 적어둔 장소는 그대로 남고, 열쇠(토큰)만 지워요.\n비밀 창고에 보관된 내용도 지워지지 않아요.',
+      actions: [
+        { label: '연결 끊기', value: true, variant: 'danger' },
+        { label: '취소', value: false, variant: 'soft' }
+      ]
+    });
+    if (!ok) return;
+    if (sync.timer) { clearTimeout(sync.timer); sync.timer = null; }
+    sync.token = '';
+    sync.gistId = '';
+    sync.login = '';
+    sync.lastSyncAt = 0;
+    sync.message = '';
+    saveSync();
+    if (els.syncToken) els.syncToken.value = '';
+    setSyncState('idle', '');
+    render();
+    toast('동기화 연결을 끊었어요. 장소는 그대로예요');
+  }
+
+  /* --- 화면 --- */
+  function syncDotState() {
+    if (!sync.token) return sync.state === 'error' ? 'error' : 'idle';
+    if (sync.state === 'syncing') return 'syncing';
+    if (sync.state === 'error') return 'error';
+    return 'synced';
+  }
+  function timeAgo(t) {
+    var d = Date.now() - t;
+    if (d < 0) d = 0;
+    if (d < 60000) return '방금';
+    if (d < 3600000) return Math.floor(d / 60000) + '분 전';
+    if (d < 86400000) return Math.floor(d / 3600000) + '시간 전';
+    return Math.floor(d / 86400000) + '일 전';
+  }
+  function renderSyncUI() {
+    var dotState = syncDotState();
+    if (els.syncDot) els.syncDot.setAttribute('data-state', dotState);
+    if (els.btnSync) {
+      var label = '동기화 · ' + SYNC_TEXT[dotState === 'idle' ? 'idle' : dotState];
+      els.btnSync.setAttribute('aria-label', label + (sync.message ? ' · ' + sync.message : ''));
+      els.btnSync.title = label;
+    }
+    var connected = !!sync.token;
+    if (els.syncOff) els.syncOff.hidden = connected;
+    if (els.syncOn) els.syncOn.hidden = !connected;
+    if (connected) {
+      if (els.syncLogin) els.syncLogin.textContent = sync.login ? '@' + sync.login : '확인 중';
+      if (els.syncLast) els.syncLast.textContent = sync.lastSyncAt ? timeAgo(sync.lastSyncAt) : '아직 없음';
+      if (els.syncGistLink) {
+        if (sync.gistId) {
+          els.syncGistLink.href = 'https://gist.github.com/' + sync.gistId;
+          els.syncGistLink.textContent = '비밀 창고 열기 ↗';
+        } else {
+          els.syncGistLink.removeAttribute('href');
+          els.syncGistLink.textContent = '아직 없음';
+        }
+      }
+    }
+    if (els.syncStatus) {
+      var msg = sync.message || (connected ? '자동으로 저장하고 있어요' : '');
+      els.syncStatus.textContent = msg;
+      els.syncStatus.hidden = !msg;
+      els.syncStatus.className = 'sync-status' + (sync.state === 'error' ? ' is-error' : '');
+    }
+    if (els.syncOffStatus) {
+      var offMsg = !connected && sync.state === 'error' ? (sync.message || '연결하지 못했어요') : '';
+      els.syncOffStatus.textContent = offMsg;
+      els.syncOffStatus.hidden = !offMsg;
+    }
+    if (els.btnSyncNow) {
+      els.btnSyncNow.disabled = !!sync.busy;
+      els.btnSyncNow.textContent = sync.busy ? '동기화 중…' : '지금 동기화';
+    }
+  }
+  function setSyncState(state, message) {
+    sync.state = state;
+    sync.message = message || '';
+    renderSyncUI();
+  }
+  function openSyncSheet() {
+    renderSyncUI();
+    openLayer(els.syncLayer);
+    if (!sync.token) {
+      setTimeout(function () { try { els.syncToken.focus({ preventScroll: true }); } catch (e) {} }, 320);
+    }
+  }
+
+  /* ---------------- events ---------------- */
+  els.list.addEventListener('click', function (e) {
+    var card = e.target.closest('.card');
+    if (!card) return;
+    var actEl = e.target.closest('[data-act]');
+    if (!actEl) return;
+    var act = actEl.getAttribute('data-act');
+    if (act === 'visit') {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleVisited(card.getAttribute('data-id'));
+      return;
+    }
+    if (act === 'edit') {
+      e.preventDefault();
+      openSheet(card.getAttribute('data-id'));
+    }
+  });
+  els.list.addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    var target = e.target;
+    if (target && target.matches && target.matches('[data-act="edit"]')) {
+      e.preventDefault();
+      var card = target.closest('.card');
+      if (card) openSheet(card.getAttribute('data-id'));
+    }
+  });
+  els.list.addEventListener('error', function (e) {
+    var t = e.target;
+    if (t && t.tagName === 'IMG') { t.style.display = 'none'; }
+  }, true);
+
+  els.search.addEventListener('input', function () {
+    view.q = els.search.value;
+    els.searchClear.hidden = !view.q;
+    render();
+  });
+  els.searchClear.addEventListener('click', function () {
+    els.search.value = '';
+    view.q = '';
+    els.searchClear.hidden = true;
+    render();
+    els.search.focus();
+  });
+  els.sort.addEventListener('change', function () {
+    view.sort = els.sort.value;
+    render();
+  });
+
+  els.statusChips.addEventListener('click', function (e) {
+    var chip = e.target.closest('.chip[data-filter]');
+    if (!chip) return;
+    view.filter = chip.getAttribute('data-filter');
+    render();
+  });
+
+  els.regionChips.addEventListener('click', function (e) {
+    var chip = e.target.closest('.chip[data-cat]');
+    if (!chip) return;
+    view.region = chip.getAttribute('data-cat');
+    render();
+  });
+  els.kindChips.addEventListener('click', function (e) {
+    var chip = e.target.closest('.chip[data-cat]');
+    if (!chip) return;
+    view.kind = chip.getAttribute('data-cat');
+    render();
+  });
+
+  els.btnRegionManage.addEventListener('click', function () { openCatSheet('regions'); });
+  els.btnKindManage.addEventListener('click', function () { openCatSheet('kinds'); });
+  els.btnRegionOpen.addEventListener('click', function () { openCatSheet('regions'); });
+  els.btnKindOpen.addEventListener('click', function () { openCatSheet('kinds'); });
+  els.catClose.addEventListener('click', closeCatSheet);
+  els.catDone.addEventListener('click', closeCatSheet);
+  els.catLayer.addEventListener('click', function (e) {
+    if (e.target === els.catLayer) closeCatSheet();
+  });
+  els.catTabs.addEventListener('click', function (e) {
+    var tab = e.target.closest('.cat-tab');
+    if (!tab) return;
+    catMode = tab.getAttribute('data-which');
+    els.newCatName.value = '';
+    renderCatList();
+  });
+
+  els.catList.addEventListener('change', function (e) {
+    var input = e.target.closest('.cat-name');
+    if (!input) return;
+    var row = input.closest('.cat-row');
+    if (!row) return;
+    renameCategory(catMode, row.getAttribute('data-cid'), input.value, input);
+  });
+  els.catList.addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter') return;
+    if (!e.target.closest || !e.target.closest('.cat-name')) return;
+    e.preventDefault();
+    e.target.blur();
+  });
+  els.catList.addEventListener('click', function (e) {
+    var del = e.target.closest('[data-act="del"]');
+    if (!del) return;
+    var row = del.closest('.cat-row');
+    if (!row) return;
+    deleteCategory(catMode, row.getAttribute('data-cid'));
+  });
+  els.btnAddCat.addEventListener('click', function () { addCategory(catMode, els.newCatName.value); });
+  els.newCatName.addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    addCategory(catMode, els.newCatName.value);
+  });
+
+  els.fab.addEventListener('click', function () { openSheet(null); });
+  els.emptyBtn.addEventListener('click', function () {
+    if (els.emptyBtn.dataset.mode === 'reset') {
+      view.q = '';
+      view.filter = 'all';
+      view.region = 'all';
+      view.kind = 'all';
+      els.search.value = '';
+      els.searchClear.hidden = true;
+      render();
+    } else {
+      openSheet(null);
+    }
+  });
+
+  els.sheetClose.addEventListener('click', closeSheet);
+  els.sheetLayer.addEventListener('click', function (e) {
+    if (e.target === els.sheetLayer) closeSheet();
+  });
+  els.syncLayer.addEventListener('click', function (e) {
+    if (e.target === els.syncLayer) closeLayer(els.syncLayer);
+  });
+  els.confirmLayer.addEventListener('click', function (e) {
+    if (e.target === els.confirmLayer) dismissConfirm();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    if (els.confirmLayer.classList.contains('show')) { dismissConfirm(); return; }
+    if (els.syncLayer.classList.contains('show')) { closeLayer(els.syncLayer); return; }
+    if (els.catLayer.classList.contains('show')) { closeCatSheet(); return; }
+    if (els.sheetLayer.classList.contains('show')) closeSheet();
+  });
+
+  els.name.addEventListener('input', function () {
+    if (els.name.value.trim()) {
+      els.name.classList.remove('err');
+      els.nameError.classList.remove('show');
+    }
+  });
+
+  function mapLinkFor(kindOfMap) {
+    var q = str(els.name.value);
+    var r = els.region.value ? catName('regions', els.region.value) : '';
+    if (r) q += ' ' + r;
+    if (!str(q)) {
+      toast('먼저 장소명을 적어 주세요', 'error');
+      try { els.name.focus(); } catch (e) {}
+      return;
+    }
+    els.link.value = kindOfMap === 'naver' ? naverSearchUrl(q) : ('https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q));
+    updateLinkPreview();
+    toast(kindOfMap === 'naver' ? '네이버지도 검색 주소를 넣었어요' : '구글맵 검색 주소를 넣었어요');
+  }
+  els.btnMapGoogle.addEventListener('click', function () { mapLinkFor('google'); });
+  els.btnMapNaver.addEventListener('click', function () { mapLinkFor('naver'); });
+  els.link.addEventListener('input', updateLinkPreview);
+
+  els.form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    var name = str(els.name.value);
+    if (!name) {
+      els.name.classList.add('err');
+      els.nameError.classList.add('show');
+      els.name.focus();
+      return;
+    }
+    var linkRaw = str(els.link.value);
+    var link = linkRaw ? safeUrl(linkRaw) : '';
+    if (linkRaw && !link) {
+      toast('링크 주소를 확인해 주세요 (http:// 또는 https:// 로 시작)', 'error');
+      els.link.focus();
+      return;
+    }
+    var wasEdit = !!editingId;
+    var base = editingId ? byId(editingId) : null;
+    var now = Date.now();
+    var regionId = els.region.value;
+    var kindId = els.kind.value;
+    var visited = !!els.visited.checked;
+    var item = {
+      id: editingId || uid(),
+      name: name.slice(0, 80),
+      regionId: (regionId && catName('regions', regionId)) ? regionId : '',
+      kindId: (kindId && catName('kinds', kindId)) ? kindId : '',
+      reason: str(els.reason.value).slice(0, 400),
+      link: link,
+      visited: visited,
+      visitedAt: visited ? (base && base.visited && base.visitedAt ? base.visitedAt : now) : 0,
+      createdAt: base ? base.createdAt : now,
+      updatedAt: now
+    };
+
+    var prev = items.slice();
+    if (base) {
+      items = items.map(function (i) { return i.id === base.id ? item : i; });
+    } else {
+      items.unshift(item);
+    }
+
+    if (!(await persist())) { items = prev; return; }
+    render();
+    closeSheet();
+    toast(wasEdit ? '수정했어요' : '‘' + item.name + '’ 목록에 담았어요');
+    scheduleSync();
+  });
+
+  els.deleteBtn.addEventListener('click', async function () {
+    var item = editingId ? byId(editingId) : null;
+    if (!item) return;
+    var ok = await askConfirm({
+      title: '장소를 삭제할까요?',
+      message: '‘' + item.name + '’ 장소를 목록에서 지워요.\n이미 다녀온 곳이라면 지우지 말고 ‘다녀왔어요’로 남겨두면 기록이 남아요.',
+      actions: [
+        { label: '삭제', value: true, variant: 'danger' },
+        { label: '취소', value: false, variant: 'soft' }
+      ]
+    });
+    if (!ok) return;
+    var prev = items.slice();
+    tombs.items[item.id] = Date.now();
+    items = items.filter(function (i) { return i.id !== item.id; });
+
+    if (!(await persist())) { items = prev; return; }
+    render();
+    closeSheet();
+    toast('삭제했어요');
+    scheduleSync();
+  });
+
+  els.btnSync.addEventListener('click', openSyncSheet);
+  els.syncClose.addEventListener('click', function () { closeLayer(els.syncLayer); });
+  els.btnSyncConnect.addEventListener('click', function () { connectWithToken(els.syncToken.value); });
+  els.syncToken.addEventListener('input', function () {
+    if (!sync.token && sync.state === 'error') setSyncState('idle', '');
+  });
+  els.syncToken.addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    connectWithToken(els.syncToken.value);
+  });
+  els.btnSyncNow.addEventListener('click', function () { syncNow({ silent: false }); });
+  els.btnSyncOff.addEventListener('click', disconnectSync);
+
+  els.btnExport.addEventListener('click', exportJSON);
+  els.btnImport.addEventListener('click', function () { els.importInput.click(); });
+  els.importInput.addEventListener('change', function () {
+    var file = els.importInput.files && els.importInput.files[0];
+    els.importInput.value = '';
+    if (!file) return;
+    handleImportFile(file);
+  });
+
+  /* ---------------- boot ---------------- */
+  async function boot() {
+    readSync();
+    await load();
+    fillCatSelects('', '');
+    render();
+    setSyncState(sync.token ? 'synced' : 'idle', '');
+    if (sync.token) {
+      setTimeout(function () { syncNow({ silent: true }); }, 350);
+    }
+  }
+
+  boot();
+
+})();
+</script>
+</body>
+</html>
