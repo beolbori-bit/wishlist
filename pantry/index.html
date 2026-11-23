@@ -142,18 +142,11 @@
     box-shadow:var(--shadow); transition:background .2s ease, transform .12s ease;
   }
   .card-body{
-    display:flex; gap:12px; padding:12px 12px 6px; border-radius:inherit; cursor:pointer;
-    outline-offset:2px; align-items:flex-start;
+    display:block; padding:13px 14px 7px; border-radius:inherit; cursor:pointer;
+    outline-offset:2px;
   }
   .card-body:focus-visible{ outline:2px solid #7FB795; }
-  .thumb{
-    position:relative; flex:0 0 78px; width:78px; height:78px; border-radius:14px; overflow:hidden;
-    background:linear-gradient(145deg,#EFF6F1,#E2EFE6);
-    display:flex; align-items:center; justify-content:center; color:#A9C4B2;
-  }
-  .thumb > svg{ width:26px; height:26px; }
-  .thumb img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transition:opacity .2s ease; }
-  .info{ flex:1; min-width:0; display:flex; flex-direction:column; gap:4px; padding:2px 0 0; }
+  .info{ display:flex; flex-direction:column; gap:5px; padding:1px 0 0; }
   .name{
     margin:0; font-size:15.5px; font-weight:700; line-height:1.35; letter-spacing:-.02em; color:var(--ink);
     display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; word-break:break-word;
@@ -172,6 +165,22 @@
     margin:0; font-size:12px; line-height:1.45; color:var(--muted); letter-spacing:-.01em;
     display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; word-break:break-word;
   }
+  .prices{
+    display:flex; flex-wrap:wrap; align-items:center; gap:3px 9px;
+    font-size:12.5px; font-weight:800; letter-spacing:-.02em; color:var(--ink-soft);
+    font-variant-numeric:tabular-nums; line-height:1.35;
+  }
+  .price{ display:inline-flex; align-items:baseline; gap:3px; white-space:nowrap; color:var(--ink); }
+  .price-k{ font-size:10.5px; font-weight:700; color:#9CAE9F; letter-spacing:-.01em; }
+  .price.is-target{ color:var(--muted); font-weight:700; }
+  .save{
+    display:inline-flex; align-items:center; padding:1px 6px; border-radius:6px;
+    background:var(--accent-soft); color:var(--accent-deep);
+    font-size:10.5px; font-weight:800; letter-spacing:-.01em; white-space:nowrap;
+  }
+  .save.is-over{ background:var(--warn-soft); color:var(--warn); }
+  .card.is-out .prices{ color:#8C978F; }
+  .card.is-out .save{ background:#EFF1F0; color:#7B8A80; }
   .card-bar{
     display:flex; align-items:center; justify-content:flex-end; gap:8px;
     padding:0 12px 11px;
@@ -205,7 +214,6 @@
   .qty-val{ font-size:16px; }
   .qty-unit{ font-size:10.5px; font-weight:700; color:var(--muted); letter-spacing:-.01em; }
   .card.is-out{ background:#FBFAF9; border-color:#F0F1EF; }
-  .card.is-out .thumb img{ opacity:.45; }
   .card.is-out .name{ color:#8C978F; text-decoration:line-through; text-decoration-color:#C4CEC7; }
   .card.is-out .stepper{ background:#F5F5F3; border-color:#EDEDEA; }
   .card.is-out .step{ color:#7E8B83; }
@@ -313,31 +321,19 @@
   .error-msg{ display:none; margin:6px 0 0 2px; font-size:12px; font-weight:600; color:#BF463E; }
   .error-msg.show{ display:block; }
   .field-note{ margin:7px 0 0 2px; font-size:11.5px; line-height:1.55; color:#9CAE9F; letter-spacing:-.01em; }
-  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
 
-  .photo-row{ display:flex; gap:12px; align-items:center; }
-  .photo-box{
-    position:relative; flex:none; width:100px; height:100px; border-radius:16px;
-    display:grid; place-items:center; overflow:hidden;
-    background:#F8FCF8; border:1.5px dashed #D3E3D8; color:#A9C0AF; cursor:pointer;
-    transition:border-color .15s ease, background .15s ease;
+  .price-pick{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .price-cell{ display:block; min-width:0; }
+  .price-cell-k{
+    display:block; margin:0 0 6px 2px;
+    font-size:12.5px; font-weight:700; color:var(--ink-soft); letter-spacing:-.01em;
   }
-  .photo-box.has{ border-style:solid; border-color:var(--line-strong); background:#fff; }
-  .photo-box img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:none; }
-  .photo-box.has img{ display:block; }
-  .photo-empty{ display:flex; flex-direction:column; align-items:center; gap:4px; font-size:10.5px; font-weight:700; color:#9CB3A2; letter-spacing:-.01em; }
-  .photo-empty svg{ width:22px; height:22px; }
-  .photo-box.has .photo-empty{ display:none; }
-  .photo-actions{ flex:1; min-width:0; display:flex; flex-direction:column; gap:8px; }
-  .mini-btn{
-    height:40px; padding:0 10px; border:1px solid var(--line-strong); border-radius:11px;
-    display:flex; align-items:center; justify-content:center;
-    background:#fff; color:var(--ink-soft);
-    font-family:inherit; font-size:12.5px; font-weight:700; letter-spacing:-.02em;
-    cursor:pointer;
+  .price-cell-box{ position:relative; display:block; }
+  .price-cell-box .input{ padding-right:30px; font-weight:800; font-variant-numeric:tabular-nums; }
+  .won{
+    position:absolute; right:13px; top:50%; transform:translateY(-50%);
+    font-size:13px; font-weight:700; color:var(--muted); pointer-events:none;
   }
-  .mini-btn svg{ width:14px; height:14px; margin-right:5px; }
-  .mini-btn:active{ background:#F6FBF7; }
 
   .sheet-actions{ margin-top:4px; }
   .sheet-actions .btn + .btn{ margin-top:9px; }
@@ -399,18 +395,6 @@
     margin:-2px 2px 10px; font-size:11.5px; line-height:1.4; color:#9CAE9F; letter-spacing:-.01em;
   }
   .sort-note[hidden]{ display:none; }
-
-  /* ---------- 이미지 주소 보조 입력 ---------- */
-  .link-toggle{
-    display:inline-flex; align-items:center; gap:3px; margin-top:6px; padding:3px 2px;
-    border:0; background:transparent; color:#8FA396;
-    font-family:inherit; font-size:11.5px; font-weight:700; letter-spacing:-.01em;
-    cursor:pointer; text-decoration:underline; text-underline-offset:3px; text-decoration-color:#D7E4DA;
-  }
-  .link-toggle svg{ width:12px; height:12px; transition:transform .18s ease; }
-  .link-toggle[aria-expanded="true"] svg{ transform:rotate(180deg); }
-  .url-more{ margin-top:8px; }
-  .url-more[hidden]{ display:none; }
 
   /* ---------- 분류 선택 ---------- */
   .cat-pick{ display:flex; gap:6px; align-items:stretch; }
@@ -661,35 +645,6 @@
 
     <form id="pantryForm" novalidate autocomplete="off">
       <div class="field">
-        <span class="field-label">사진 <span class="hint">선택</span></span>
-        <div class="photo-row">
-          <div class="photo-box" id="photoBox" role="button" tabindex="0" aria-label="식료품 사진 올리기">
-            <img id="photoPreview" alt="">
-            <div class="photo-empty">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="14" rx="3"/><circle cx="9" cy="10" r="1.6"/><path d="M4.5 17l4.6-4.4 3.4 3.2 2.6-2.4 4.4 4"/></svg>
-              <span>사진 추가</span>
-            </div>
-          </div>
-          <div class="photo-actions">
-            <button type="button" class="mini-btn" id="pickPhoto">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V5"/><path d="M8.5 8.5L12 5l3.5 3.5"/><path d="M5 19h14"/></svg>
-              사진 올리기
-            </button>
-            <button type="button" class="mini-btn" id="clearPhoto">사진 지우기</button>
-          </div>
-        </div>
-        <input type="file" id="photoInput" accept="image/*" hidden>
-        <p class="field-note">사진은 자동으로 줄여서 저장해요 (최대 600px)</p>
-        <button type="button" class="link-toggle" id="btnUrlToggle" aria-expanded="false" aria-controls="urlMore">
-          또는 이미지 주소로 넣기
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-        </button>
-        <div class="url-more" id="urlMore" hidden>
-          <input id="fImageUrl" class="input" type="url" inputmode="url" placeholder="https://... 이미지 주소 붙여넣기" autocomplete="off" aria-label="이미지 주소">
-        </div>
-      </div>
-
-      <div class="field">
         <label for="fName">품목명 <span class="req">필수</span></label>
         <input id="fName" class="input" type="text" maxlength="80" placeholder="예: 서울우유 1L, 계란 한 판" enterkeyhint="next">
         <p class="error-msg" id="nameError">품목명을 적어 주세요</p>
@@ -729,6 +684,26 @@
       <div class="field">
         <label for="fPlace">보관 위치 · 구매처 <span class="hint">선택</span></label>
         <input id="fPlace" class="input" type="text" maxlength="40" placeholder="냉장고 문짝, 냉동실 2칸, 쿠팡…" enterkeyhint="next">
+      </div>
+
+      <div class="field">
+        <div class="price-pick">
+          <label class="price-cell" for="fTargetPrice">
+            <span class="price-cell-k">목표가격 <span class="hint">선택</span></span>
+            <span class="price-cell-box">
+              <input id="fTargetPrice" class="input" type="text" inputmode="numeric" maxlength="12" placeholder="4,500" autocomplete="off">
+              <span class="won">원</span>
+            </span>
+          </label>
+          <label class="price-cell" for="fPaidPrice">
+            <span class="price-cell-k">구매가격 <span class="hint">선택</span></span>
+            <span class="price-cell-box">
+              <input id="fPaidPrice" class="input" type="text" inputmode="numeric" maxlength="12" placeholder="3,900" autocomplete="off">
+              <span class="won">원</span>
+            </span>
+          </label>
+        </div>
+        <p class="field-note">목표보다 싸게 샀다면 카드에 <b>아낀 금액</b>을 함께 보여드려요.</p>
       </div>
 
       <div class="field">
@@ -872,6 +847,7 @@
   var MAX_CATS = 20;
   var MAX_TOMBS = 400;
   var MAX_QTY = 9999;
+  var MAX_PRICE = 99999999;
   var DATA_VERSION = 1;
 
   var $ = function (sel, root) { return (root || document).querySelector(sel); };
@@ -913,14 +889,8 @@
     btnClearExpiry: $('#btnClearExpiry'),
     place: $('#fPlace'),
     memo: $('#fMemo'),
-    imageUrl: $('#fImageUrl'),
-    urlMore: $('#urlMore'),
-    urlToggle: $('#btnUrlToggle'),
-    photoBox: $('#photoBox'),
-    photoPreview: $('#photoPreview'),
-    photoInput: $('#photoInput'),
-    pickPhoto: $('#pickPhoto'),
-    clearPhoto: $('#clearPhoto'),
+    targetPrice: $('#fTargetPrice'),
+    paidPrice: $('#fPaidPrice'),
     saveBtn: $('#saveBtn'),
     deleteBtn: $('#deleteBtn'),
     btnExport: $('#btnExport'),
@@ -1001,12 +971,8 @@
   var catTombstones = {};   /* 지운 분류: id → 지운 시각(ms) */
   var view = { q: '', filter: 'all', cat: 'all', sort: 'expiry' };
   var editingId = null;
-  var draftImage = '';
   var confirmResolve = null;
   var lastFocus = null;
-
-  var PH_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-    '<rect x="5.5" y="4" width="13" height="16.5" rx="3"/><path d="M5.5 10.5h13"/><path d="M8.7 6.9v2.1"/><path d="M8.7 12.7v2.6"/></svg>';
 
   var UNIT_PRESETS = ['개', '팩', '봉', '병', '캔', '판', 'g', 'ml', 'L'];
 
@@ -1021,19 +987,6 @@
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
     });
   }
-  function safeUrl(v) {
-    var s = str(v);
-    if (!s) return '';
-    if (!/^[a-z][a-z0-9+.\-]*:/i.test(s)) s = 'https://' + s;
-    try {
-      var u = new URL(s);
-      if (u.protocol !== 'http:' && u.protocol !== 'https:') return '';
-      return u.href;
-    } catch (e) { return ''; }
-  }
-  function isPhotoData(s) {
-    return typeof s === 'string' && /^data:image\/(jpeg|png|webp);base64,/i.test(s);
-  }
   /* 수량: 정수 0~MAX_QTY. 빈 값은 null(폼에서만 기본값 처리) */
   function toQty(v) {
     var digits = String(v == null ? '' : v).replace(/[^0-9]/g, '');
@@ -1045,6 +998,17 @@
   function normQty(v, fallback) {
     var n = toQty(v);
     return n === null ? fallback : n;
+  }
+  /* 가격(원): 0~MAX_PRICE 정수. 비었거나 숫자가 없으면 null */
+  function toPrice(v) {
+    var digits = String(v == null ? '' : v).replace(/[^0-9]/g, '');
+    if (!digits) return null;
+    var n = parseInt(digits.slice(0, 10), 10);
+    if (!isFinite(n)) return null;
+    return Math.max(0, Math.min(MAX_PRICE, n));
+  }
+  function prettyPrice(n) {
+    return comma(n) + '원';
   }
   /* 유통기한: 'YYYY-MM-DD' 만 보관 */
   function normDate(v) {
@@ -1140,8 +1104,6 @@
     if (!raw || typeof raw !== 'object') return null;
     var name = str(raw.name).slice(0, 80);
     if (!name) return null;
-    var imageRaw = typeof raw.image === 'string' ? raw.image : (typeof raw.photo === 'string' ? raw.photo : '');
-    var image = isPhotoData(imageRaw) ? imageRaw : safeUrl(imageRaw);
     var createdAt = Number(raw.createdAt);
     if (!isFinite(createdAt) || createdAt <= 0) createdAt = Date.now();
     return {
@@ -1153,7 +1115,8 @@
       expiry: normDate(raw.expiry),
       place: str(raw.place).slice(0, 40),
       memo: str(raw.memo).slice(0, 300),
-      image: image,
+      targetPrice: toPrice(raw.targetPrice),
+      paidPrice: toPrice(raw.paidPrice),
       createdAt: createdAt,
       updatedAt: Number(raw.updatedAt) || createdAt
     };
@@ -1307,23 +1270,36 @@
   }
 
   /* ---------------- 카드 ---------------- */
+  function pricesHTML(it) {
+    var t = it.targetPrice, p = it.paidPrice;
+    if (t === null && p === null) return '';
+    var html = '';
+    if (p !== null) html += '<span class="price"><span class="price-k">산 값</span>' + esc(prettyPrice(p)) + '</span>';
+    if (t !== null) html += '<span class="price is-target"><span class="price-k">목표</span>' + esc(prettyPrice(t)) + '</span>';
+    if (t !== null && p !== null) {
+      if (p < t) html += '<span class="save">' + esc(comma(t - p) + '원 아낌') + '</span>';
+      else if (p > t) html += '<span class="save is-over">목표보다 ' + esc(comma(p - t) + '원 더') + '</span>';
+    }
+    return '<div class="prices">' + html + '</div>';
+  }
+
   function cardHTML(it) {
-    var img = it.image ? '<img src="' + esc(it.image) + '" alt="" loading="lazy" decoding="async">' : '';
     var cat = it.categoryId && catName(it.categoryId)
       ? '<span class="badge badge-cat">' + esc(catName(it.categoryId)) + '</span>'
       : '';
     var place = it.place ? '<span class="badge badge-place" title="보관 위치·구매처">' + esc(it.place) + '</span>' : '';
     var out = it.qty === 0 ? '<span class="badge badge-out">다 씀</span>' : '';
     var memo = it.memo ? '<p class="memo">' + esc(it.memo) + '</p>' : '';
+    var prices = pricesHTML(it);
     var d = daysLeft(it.expiry);
     var dday = d === null ? '' : '<span class="dday' + ddayClass(d) + '">' + esc(ddayLabel(d)) + '</span>';
     var meta = cat + out + place;
     return '<article class="card' + (it.qty === 0 ? ' is-out' : '') + '" data-id="' + esc(it.id) + '">' +
       '<div class="card-body" data-act="edit" role="button" tabindex="0" aria-label="' + esc(it.name) + ' 수정하기">' +
-        '<div class="thumb">' + PH_SVG + img + '</div>' +
         '<div class="info">' +
           '<h3 class="name">' + esc(it.name) + '</h3>' +
           (meta ? '<div class="meta">' + meta + '</div>' : '') +
+          prices +
           memo +
         '</div>' +
       '</div>' +
@@ -1613,11 +1589,6 @@
   }
 
   /* ---------------- sheet ---------------- */
-  function setUrlOpen(open) {
-    els.urlMore.hidden = !open;
-    els.urlToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-  }
-
   function renderUnitChips() {
     els.unitChips.innerHTML = UNIT_PRESETS.map(function (u) {
       var on = str(els.unit.value) === u;
@@ -1625,10 +1596,13 @@
     }).join('');
   }
 
+  function setPriceInput(el, v) {
+    el.value = (v === null || v === undefined) ? '' : comma(v);
+  }
+
   function openSheet(id) {
     var item = id ? items.filter(function (i) { return i.id === id; })[0] : null;
     editingId = item ? item.id : null;
-    draftImage = item && isPhotoData(item.image) ? item.image : '';
 
     els.sheetTitle.textContent = item ? '식료품 수정' : '식료품 담기';
     els.name.value = item ? item.name : '';
@@ -1637,16 +1611,14 @@
     els.unit.value = item ? item.unit : '';
     els.expiry.value = item && item.expiry ? item.expiry : '';
     els.place.value = item ? item.place : '';
+    setPriceInput(els.targetPrice, item ? item.targetPrice : null);
+    setPriceInput(els.paidPrice, item ? item.paidPrice : null);
     els.memo.value = item ? item.memo : '';
-    var urlImg = item && item.image && !isPhotoData(item.image) ? item.image : '';
-    els.imageUrl.value = urlImg;
-    setUrlOpen(!!urlImg);
     els.name.classList.remove('err');
     els.nameError.classList.remove('show');
     els.deleteBtn.hidden = !item;
     els.saveBtn.textContent = item ? '수정 저장' : '냉장고에 넣기';
     renderUnitChips();
-    updatePreview();
 
     els.sheet.scrollTop = 0;
     openLayer(els.sheetLayer);
@@ -1658,66 +1630,10 @@
   function closeSheet() {
     closeLayer(els.sheetLayer);
     editingId = null;
-    draftImage = '';
     els.form.reset();
-    els.photoBox.classList.remove('has');
-    els.photoPreview.removeAttribute('src');
     els.name.classList.remove('err');
     els.nameError.classList.remove('show');
     els.deleteBtn.hidden = true;
-    els.imageUrl.value = '';
-    setUrlOpen(false);
-  }
-
-  function updatePreview() {
-    var url = draftImage || safeUrl(els.imageUrl.value);
-    if (url) {
-      els.photoPreview.src = url;
-      els.photoBox.classList.add('has');
-    } else {
-      els.photoPreview.removeAttribute('src');
-      els.photoBox.classList.remove('has');
-    }
-  }
-
-  /* ---------------- photo compression ---------------- */
-  function compressImage(file) {
-    return new Promise(function (resolve, reject) {
-      var objectUrl = URL.createObjectURL(file);
-      var img = new Image();
-      img.onload = function () {
-        try {
-          var maxW = 600;
-          var w = img.naturalWidth || img.width;
-          var h = img.naturalHeight || img.height;
-          if (!w || !h) throw new Error('사진 크기를 읽지 못했어요');
-          if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
-          var canvas = document.createElement('canvas');
-          canvas.width = w;
-          canvas.height = h;
-          var ctx = canvas.getContext('2d');
-          ctx.fillStyle = '#ffffff';
-          ctx.fillRect(0, 0, w, h);
-          ctx.drawImage(img, 0, 0, w, h);
-          URL.revokeObjectURL(objectUrl);
-          var quality = 0.75;
-          var data = canvas.toDataURL('image/jpeg', quality);
-          while (data.length > 320000 && quality > 0.45) {
-            quality = Math.round((quality - 0.1) * 100) / 100;
-            data = canvas.toDataURL('image/jpeg', quality);
-          }
-          resolve(data);
-        } catch (err) {
-          URL.revokeObjectURL(objectUrl);
-          reject(err);
-        }
-      };
-      img.onerror = function () {
-        URL.revokeObjectURL(objectUrl);
-        reject(new Error('사진을 읽지 못했어요. 다른 사진으로 시도해 주세요.'));
-      };
-      img.src = objectUrl;
-    });
   }
 
   /* ---------------- 수량 빠른 조절 ---------------- */
@@ -1979,7 +1895,7 @@
       if (res.status === 401) throw new SyncError('auth', '열쇠(토큰)가 맞지 않아요. 다시 확인해 주세요');
       if (res.status === 403) throw new SyncError('auth', /rate limit/i.test(msg) ? '요청이 너무 많았어요. 잠시 뒤 다시 시도해 주세요' : '이 열쇠로는 할 수 없어요. gist 권한을 확인해 주세요');
       if (res.status === 404) throw new SyncError('nf', '비밀 창고를 찾지 못했어요');
-      if (res.status === 422) throw new SyncError('size', '사진이 많아 창고에 담기에는 내용이 너무 커요. 사진을 줄이거나 백업 파일을 이용해 주세요');
+      if (res.status === 422) throw new SyncError('size', '창고에 담기에는 내용이 너무 커요. 품목을 줄이거나 백업 파일을 이용해 주세요');
       throw new SyncError('http', 'GitHub에서 거절했어요 (' + res.status + ')');
     }
     return data;
@@ -2352,10 +2268,6 @@
       if (card) openSheet(card.getAttribute('data-id'));
     }
   });
-  els.list.addEventListener('error', function (e) {
-    var t = e.target;
-    if (t && t.tagName === 'IMG') { t.style.display = 'none'; }
-  }, true);
 
   els.search.addEventListener('input', function () {
     view.q = els.search.value;
@@ -2480,50 +2392,24 @@
     try { els.expiry.focus({ preventScroll: true }); } catch (e) {}
   });
 
-  els.urlToggle.addEventListener('click', function () {
-    var open = els.urlMore.hidden;
-    if (!open) {
-      els.imageUrl.value = '';
-      if (!draftImage) updatePreview();
-    }
-    setUrlOpen(open);
-    if (open) { try { els.imageUrl.focus({ preventScroll: true }); } catch (e) {} }
-  });
-  els.imageUrl.addEventListener('input', function () {
-    if (str(els.imageUrl.value)) draftImage = '';
-    updatePreview();
-  });
-  els.photoPreview.addEventListener('error', function () {
-    els.photoBox.classList.remove('has');
-  });
-
-  function triggerPhotoPick() { els.photoInput.click(); }
-  els.pickPhoto.addEventListener('click', triggerPhotoPick);
-  els.photoBox.addEventListener('click', triggerPhotoPick);
-  els.photoBox.addEventListener('keydown', function (e) {
-    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); triggerPhotoPick(); }
-  });
-  els.clearPhoto.addEventListener('click', function () {
-    draftImage = '';
-    els.photoInput.value = '';
-    els.imageUrl.value = '';
-    updatePreview();
-  });
-  els.photoInput.addEventListener('change', async function () {
-    var file = els.photoInput.files && els.photoInput.files[0];
-    els.photoInput.value = '';
-    if (!file) return;
-    if (!/^image\//.test(file.type)) { toast('이미지 파일만 올릴 수 있어요', 'error'); return; }
-    if (file.size > 25 * 1024 * 1024) { toast('사진이 너무 커요 (25MB 이하)', 'error'); return; }
-    try {
-      var data = await compressImage(file);
-      draftImage = data;
-      els.imageUrl.value = '';
-      setUrlOpen(false);
-      updatePreview();
-    } catch (err) {
-      toast(err && err.message ? err.message : '사진을 읽지 못했어요', 'error');
-    }
+  /* 가격 입력: 숫자만 받고, 쉼표는 칸을 벗어날 때 붙인다 */
+  function priceInput(e) {
+    var el = e.target;
+    el.value = el.value.replace(/[^0-9]/g, '').slice(0, 10);
+  }
+  function priceBlur(e) {
+    var el = e.target;
+    var n = toPrice(el.value);
+    el.value = n === null ? '' : comma(n);
+  }
+  function priceFocus(e) {
+    var el = e.target;
+    el.value = el.value.replace(/[^0-9]/g, '');
+  }
+  [els.targetPrice, els.paidPrice].forEach(function (el) {
+    el.addEventListener('input', priceInput);
+    el.addEventListener('blur', priceBlur);
+    el.addEventListener('focus', priceFocus);
   });
 
   els.form.addEventListener('submit', async function (e) {
@@ -2533,13 +2419,6 @@
       els.name.classList.add('err');
       els.nameError.classList.add('show');
       els.name.focus();
-      return;
-    }
-    var imageUrlRaw = str(els.imageUrl.value);
-    var image = draftImage || (imageUrlRaw ? safeUrl(imageUrlRaw) : '');
-    if (imageUrlRaw && !draftImage && !image) {
-      toast('이미지 주소를 확인해 주세요', 'error');
-      els.imageUrl.focus();
       return;
     }
     var wasEdit = !!editingId;
@@ -2556,7 +2435,8 @@
       expiry: normDate(els.expiry.value),
       place: str(els.place.value).slice(0, 40),
       memo: str(els.memo.value).slice(0, 300),
-      image: image,
+      targetPrice: toPrice(els.targetPrice.value),
+      paidPrice: toPrice(els.paidPrice.value),
       createdAt: base ? base.createdAt : now,
       updatedAt: now
     };
